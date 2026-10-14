@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сборка карманного ассистента</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: one technical sheet, 980px column; drawings sit on a 1 cm grid like a cutting mat */
+:root{
+  --paper:#F2F5F3; --card:#FFFFFF; --ink:#16201C; --muted:#5A6762; --line:#CBD5D0; --grid:#DCE4E0;
+  --pcb:#1D6B4E; --pcb-soft:#D8ECE2;
+  --copper:#A65A20; --copper-soft:#F4E3D4;
+  --data:#2B5AA6; --data-soft:#DDE6F6;
+  --amber:#9A6B00; --warn:#A8321F; --warn-soft:#F7DFD9;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1412; --card:#151D1A; --ink:#E2EAE6; --muted:#98A6A0; --line:#2B3733; --grid:#1D2825;
+    --pcb:#55C997; --pcb-soft:#173A2C; --copper:#E49B5E; --copper-soft:#3B2719;
+    --data:#88AAF2; --data-soft:#1B2A45; --amber:#E2BF5A; --warn:#FF8F7C; --warn-soft:#3D1E18;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1412; --card:#151D1A; --ink:#E2EAE6; --muted:#98A6A0; --line:#2B3733; --grid:#1D2825;
+  --pcb:#55C997; --pcb-soft:#173A2C; --copper:#E49B5E; --copper-soft:#3B2719;
+  --data:#88AAF2; --data-soft:#1B2A45; --amber:#E2BF5A; --warn:#FF8F7C; --warn-soft:#3D1E18;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(28px,5vw,44px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:clamp(20px,3vw,26px);font-weight:500}
+h3{font-size:16px;font-weight:500;font-family:var(--f-body);font-weight:600}
+p{margin:0;max-width:68ch}
+a{color:var(--data)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--data);outline-offset:2px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lead{font-size:18px;color:var(--ink)}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+header{display:grid;gap:14px;padding-block:8px 28px;border-bottom:1px solid var(--line)}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:10px}
+.spec{background:var(--card);padding:14px 16px;display:grid;gap:2px;min-width:0}
+.spec b{font-family:var(--f-mono);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums}
+.spec span{font-size:13px;color:var(--muted)}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;padding-block:16px}
+nav.toc a{text-decoration:none;border-bottom:1px solid var(--line);color:var(--ink)}
+section{display:grid;gap:16px;padding-block:36px;border-bottom:1px solid var(--line)}
+.fig{background:var(--card);border:1px solid var(--line);padding:14px;display:grid;gap:8px;min-width:0}
+.fig .scroll{overflow-x:auto}
+.fig svg{display:block;width:100%;height:auto}
+.fig svg.wide{min-width:640px}
+.fig figcaption{font-size:13px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.cols>*{min-width:0}
+.tbl{overflow-x:auto;border:1px solid var(--line);background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--paper)}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font-family:var(--f-mono);font-size:11px;padding:2px 7px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.pill.ok{color:var(--pcb)} .pill.no{color:var(--warn)} .pill.mid{color:var(--amber)} .pill.have{color:var(--data)}
+.verdict{border-left:3px solid var(--pcb);padding:12px 16px;background:var(--card)}
+.verdict.warn{border-left-color:var(--warn)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px}
+/* SVG drawing classes */
+.g10{fill:none;stroke:var(--grid);stroke-width:.3}
+.ghost{fill:none;stroke:var(--muted);stroke-width:.6;stroke-dasharray:2.2 1.6}
+.part{fill:var(--pcb-soft);stroke:var(--pcb);stroke-width:.8}
+.part2{fill:var(--copper-soft);stroke:var(--copper);stroke-width:.8}
+.partd{fill:var(--data-soft);stroke:var(--data);stroke-width:.8}
+.knob{fill:var(--card);stroke:var(--ink);stroke-width:.6}
+.cable{fill:none;stroke:var(--ink);stroke-width:.9;stroke-linecap:round}
+.wall{fill:var(--card);stroke:var(--ink);stroke-width:.9}
+.inner{fill:none;stroke:var(--line);stroke-width:.5}
+.hdr{fill:var(--ink);opacity:.7}
+.lead-l{fill:none;stroke:var(--muted);stroke-width:.4}
+.body{fill:var(--card);stroke:var(--muted);stroke-width:1}
+.tx{fill:var(--ink);font-family:var(--f-mono)}
+.tm{fill:var(--muted);font-family:var(--f-mono)}
+.tb{fill:var(--ink);font-family:var(--f-body);font-weight:600}
+.node{fill:var(--card);stroke:var(--ink);stroke-width:1.2}
+.node-g{fill:var(--pcb-soft);stroke:var(--pcb);stroke-width:1.4}
+.pw{stroke:var(--copper);stroke-width:3;fill:none}
+.dt{stroke:var(--data);stroke-width:2.6;fill:none}
+.gp{stroke:var(--pcb);stroke-width:2.6;fill:none}
+.rf{stroke:var(--muted);stroke-width:1.4;stroke-dasharray:6 5;fill:none}
+.hbg{fill:var(--paper);stroke:var(--line);stroke-width:.8}
+.pin{fill:var(--card);stroke:var(--muted);stroke-width:.5}
+.p5{fill:var(--copper);stroke:none} .p33{fill:var(--amber);stroke:none} .pg{fill:var(--ink);stroke:none}
+.pi2c{fill:var(--data);stroke:none} .pio{fill:var(--pcb);stroke:none}
+/* weight bars */
+.bars{display:grid;gap:6px}
+.bar{display:grid;grid-template-columns:minmax(120px,190px) 1fr 52px;gap:10px;align-items:center;font-size:14px}
+.bar i{display:block;height:12px;background:var(--copper);border-radius:2px}
+.bar i.g{background:var(--pcb)} .bar i.d{background:var(--data)} .bar i.m{background:var(--muted)}
+.bar span:last-child{font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+/* shopping */
+.shop{display:grid;gap:22px}
+.shop h3{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.shop h3 small{font-family:var(--f-mono);font-weight:400;font-size:13px;color:var(--muted)}
+.shop td:first-child{width:34px}
+.shop input[type=checkbox]{width:18px;height:18px;accent-color:var(--pcb)}
+.shop tr.done td:not(:first-child){color:var(--muted);text-decoration:line-through}
+.totals{display:flex;flex-wrap:wrap;gap:8px 28px;font-family:var(--f-mono);font-size:14px;padding:12px 16px;background:var(--card);border:1px solid var(--line)}
+.totals b{font-weight:500;font-size:18px}
+/* steps */
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:0;counter-reset:s;border:1px solid var(--line);background:var(--card)}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:44px 1fr auto;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);align-items:start}
+ol.steps li:last-child{border-bottom:0}
+ol.steps li::before{content:counter(s);font-family:var(--f-mono);font-size:20px;color:var(--pcb)}
+ol.steps li>div{min-width:0;display:grid;gap:4px}
+.who{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--line);white-space:nowrap}
+.who.me{color:var(--data);border-color:var(--data)} .who.you{color:var(--copper);border-color:var(--copper)} .who.shop{color:var(--pcb);border-color:var(--pcb)}
+pre.job{white-space:pre-wrap;font-family:var(--f-mono);font-size:13.5px;line-height:1.6;background:var(--card);border:1px solid var(--line);padding:16px;margin:0;overflow-x:auto}
+button.copy{font:500 14px var(--f-body);background:var(--ink);color:var(--paper);border:0;padding:9px 16px;cursor:pointer;justify-self:start}
+ul.plain{margin:0;padding-left:20px;display:grid;gap:6px;max-width:72ch}
+.note{font-size:13px;color:var(--muted)}
+footer{padding-block:28px 0;font-size:13px;color:var(--muted);display:grid;gap:6px}
+@media (max-width:560px){
+  ol.steps li{grid-template-columns:30px 1fr}
+  ol.steps li .who{grid-column:2;justify-self:start}
+  .bar{grid-template-columns:110px 1fr 44px;font-size:13px}
+}
+@media (prefers-reduced-motion:no-preference){ a,button{transition:opacity .15s} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">План сборки · версия 1 · 14 октября 2026</div>
+  <h1>Карманный ассистент</h1>
+  <p class="lead">Устройство «вопрос — ответ» с голосовым вводом. Внутри Orange Pi Zero 2W, твой модем E3372 и батарея из двух 18650. Управление вынесено на пульт на проводе, ответы звучат в Bluetooth-наушниках. Все размеры и вес рассчитаны по паспортам деталей, точность ±10%. Корпус я спроектирую по реальным замерам, когда детали будут у тебя.</p>
+  <div class="specs" aria-label="Главные цифры">
+    <div class="spec"><b>130×80×45</b><span>мм, основная коробка</span></div>
+    <div class="spec"><b>≈ 290 г</b><span>коробка, плюс пульт ≈ 35 г</span></div>
+    <div class="spec"><b>≈ 7 ч</b><span>работы от 2 × 18650</span></div>
+    <div class="spec"><b id="specBudget">≈ 16 тыс. ₽</b><span>детали, модем уже есть</span></div>
+  </div>
+  <nav class="toc" aria-label="Разделы">
+    <a href="#look">Как выглядит</a><a href="#board">Почему эта плата</a><a href="#power">18650 или пауэрбанк</a><a href="#scheme">Схема</a><a href="#pins">Распиновка</a><a href="#remote">Пульт</a><a href="#buy">Что купить</a><a href="#workshop">Мастерская</a><a href="#steps">Порядок сборки</a><a href="#risks">Риски</a>
+  </nav>
+</header>
+
+<section id="look">
+  <div class="eyebrow">01 · Размер и вес</div>
+  <h2>Как это будет выглядеть</h2>
+  <p>Чертёж в масштабе, одна клетка = 1 см. Пунктиром показан смартфон для сравнения. Коробка по площади как телефон, но толщиной 4,5 см, это примерно три колоды карт в стопке. Фото самих деталей можно посмотреть по ссылкам в списке покупок.</p>
+
+  <figure class="fig">
+    <div class="scroll">
+    <svg class="wide" viewBox="0 0 300 192" role="img" aria-label="Вид сверху в масштабе: коробка, пульт, петличка, смартфон и банковская карта">
+      <defs><pattern id="g10" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" class="g10"/></pattern></defs>
+      <rect x="0" y="0" width="300" height="192" fill="url(#g10)"/>
+      <!-- phone -->
+      <rect x="10" y="22" width="75" height="160" rx="9" class="ghost"/>
+      <text x="47.5" y="16" text-anchor="middle" class="tm" style="font-size:4px">смартфон 160 × 75</text>
+      <!-- main box -->
+      <rect x="7.5" y="37" width="80" height="130" rx="5" class="part"/>
+      <rect x="11" y="41" width="73" height="5" rx="1" class="hdr" opacity=".25"/>
+      <text x="47.5" y="92" text-anchor="middle" class="tb" style="font-size:6px">коробка</text>
+      <text x="47.5" y="101" text-anchor="middle" class="tx" style="font-size:4.4px">130 × 80 × 45 мм</text>
+      <text x="47.5" y="109" text-anchor="middle" class="tx" style="font-size:4.4px">≈ 290 г</text>
+      <text x="47.5" y="160" text-anchor="middle" class="tm" style="font-size:3.4px">USB-C зарядка · выключатель</text>
+      <!-- cable -->
+      <path d="M126 70 C126 98 104 104 87.5 118" class="cable" stroke-dasharray="2 1.4"/>
+      <text x="112" y="104" class="tm" style="font-size:3.4px">провод ≈ 80 см</text>
+      <!-- remote -->
+      <rect x="110" y="25" width="32" height="45" rx="7" class="part2"/>
+      <circle cx="126" cy="41" r="10" class="knob"/><circle cx="126" cy="41" r="3.5" class="knob"/>
+      <rect x="141" y="52" width="3.5" height="12" rx="1" class="knob"/>
+      <text x="126" y="79" text-anchor="middle" class="tb" style="font-size:4.6px">пульт</text>
+      <text x="126" y="85" text-anchor="middle" class="tx" style="font-size:3.6px">45 × 32 × 22 · ≈ 35 г</text>
+      <text x="150" y="60" class="tm" style="font-size:3.2px">← кнопка «говорить»</text>
+      <text x="139" y="22" class="tm" style="font-size:3.2px">энкодер</text>
+      <!-- lav -->
+      <rect x="168" y="28" width="20" height="30" rx="4" class="partd"/>
+      <text x="178" y="66" text-anchor="middle" class="tb" style="font-size:4.2px">петличка</text>
+      <text x="178" y="72" text-anchor="middle" class="tx" style="font-size:3.4px">≈ 30 × 20 · 10 г</text>
+      <!-- card -->
+      <rect x="110" y="112" width="86" height="54" rx="3.2" class="ghost"/>
+      <text x="153" y="140" text-anchor="middle" class="tm" style="font-size:4px">банковская карта 86 × 54</text>
+      <!-- earbud -->
+      <circle cx="222" cy="40" r="8" class="knob"/><circle cx="240" cy="40" r="8" class="knob"/>
+      <text x="231" y="58" text-anchor="middle" class="tm" style="font-size:3.4px">BT-наушники (твои)</text>
+      <!-- scale bar -->
+      <path d="M220 178H270M220 175V181M270 175V181M245 176.5V179.5" class="cable"/>
+      <text x="245" y="172" text-anchor="middle" class="tx" style="font-size:3.6px">5 см</text>
+    </svg>
+    </div>
+    <figcaption>Вид сверху, масштаб 1:1 по сетке. Коробка на 5 мм шире смартфона и на 30 мм короче.</figcaption>
+  </figure>
+
+  <div class="cols">
+    <figure class="fig">
+      <svg viewBox="0 0 200 92" role="img" aria-label="Вид сбоку: толщина коробки, пульта и смартфона">
+        <rect x="0" y="0" width="200" height="92" fill="url(#g10)"/>
+        <rect x="8" y="12" width="130" height="45" rx="4" class="part"/>
+        <text x="73" y="38" text-anchor="middle" class="tx" style="font-size:4.4px">коробка · 45 мм</text>
+        <rect x="148" y="35" width="45" height="22" rx="5" class="part2"/>
+        <rect x="157" y="27" width="20" height="8" rx="2" class="knob"/>
+        <text x="170.5" y="49" text-anchor="middle" class="tx" style="font-size:3.6px">пульт · 22</text>
+        <rect x="8" y="70" width="160" height="8" rx="3" class="ghost"/>
+        <text x="88" y="88" text-anchor="middle" class="tm" style="font-size:3.6px">смартфон · 8 мм</text>
+      </svg>
+      <figcaption>Вид сбоку. Самое толстое место коробки: два слоя деталей друг над другом.</figcaption>
+    </figure>
+    <figure class="fig">
+      <svg viewBox="0 0 320 300" role="img" aria-label="Как носить: петличка на воротнике, наушники, коробка во внутреннем кармане, пульт в руке">
+        <circle cx="160" cy="52" r="30" class="body"/>
+        <path d="M98 112 Q160 92 222 112 L246 292 L74 292 Z" class="body"/>
+        <path d="M138 100 L160 146 L182 100" class="body" fill="none"/>
+        <line x1="160" y1="146" x2="160" y2="292" class="lead-l"/>
+        <rect x="173" y="112" width="8" height="12" rx="2" class="partd"/>
+        <path d="M181 118 H252" class="lead-l"/><text x="254" y="116" class="tx" style="font-size:11px">петличка</text><text x="254" y="129" class="tm" style="font-size:10px">на воротнике</text>
+        <circle cx="129" cy="56" r="5" class="knob"/><circle cx="191" cy="56" r="5" class="knob"/>
+        <path d="M124 56 H62" class="lead-l"/><text x="6" y="54" class="tx" style="font-size:11px">наушники</text>
+        <rect x="100" y="152" width="40" height="64" rx="4" class="part" stroke-dasharray="4 3"/>
+        <path d="M100 184 H62" class="lead-l"/><text x="6" y="180" class="tx" style="font-size:11px">коробка</text><text x="6" y="193" class="tm" style="font-size:10px">внутр. карман</text>
+        <path d="M120 216 C124 262 178 250 198 262" class="cable" style="stroke-width:1.4"/>
+        <rect x="194" y="256" width="20" height="28" rx="5" class="part2"/><circle cx="204" cy="265" r="5" class="knob"/>
+        <path d="M214 270 H252" class="lead-l"/><text x="254" y="268" class="tx" style="font-size:11px">пульт</text><text x="254" y="281" class="tm" style="font-size:10px">в руке/кармане</text>
+      </svg>
+      <figcaption>Как носить. Коробка лежит во внутреннем кармане куртки, к пульту идёт тонкий провод.</figcaption>
+    </figure>
+  </div>
+
+  <figure class="fig">
+    <div class="scroll">
+    <svg class="wide" viewBox="0 0 290 104" role="img" aria-label="Компоновка внутри коробки: нижний и верхний слой">
+      <text x="70" y="9" text-anchor="middle" class="tb" style="font-size:5px">Нижний слой · питание и модем</text>
+      <text x="215" y="9" text-anchor="middle" class="tb" style="font-size:5px">Верхний слой · компьютер и USB</text>
+      <g transform="translate(5 16)">
+        <rect width="130" height="80" rx="4" class="wall"/><rect x="2" y="2" width="126" height="76" rx="3" class="inner"/>
+        <rect x="5" y="5" width="77" height="21" rx="3" class="part2"/><text x="43.5" y="17.5" text-anchor="middle" class="tx" style="font-size:3.8px">18650 №1 в боксе</text>
+        <rect x="5" y="28" width="77" height="21" rx="3" class="part2"/><text x="43.5" y="40.5" text-anchor="middle" class="tx" style="font-size:3.8px">18650 №2 в боксе</text>
+        <rect x="5" y="52" width="82" height="24" rx="2" class="partd"/><text x="46" y="63" text-anchor="middle" class="tx" style="font-size:3.6px">модем E3372</text><text x="46" y="69" text-anchor="middle" class="tm" style="font-size:3px">без корпуса</text>
+        <rect x="88" y="5" width="36" height="17" rx="2" class="part"/><text x="106" y="12.5" text-anchor="middle" class="tx" style="font-size:3.2px">модуль 5 В</text><text x="106" y="17.5" text-anchor="middle" class="tm" style="font-size:2.8px">заряд USB-C →</text>
+        <rect x="124" y="9" width="4" height="8" class="hdr"/>
+        <rect x="88" y="26" width="26" height="20" rx="2" class="part"/><text x="101" y="37.5" text-anchor="middle" class="tx" style="font-size:3.2px">INA219</text>
+        <rect x="112" y="54" width="14" height="16" rx="2" class="knob"/><text x="119" y="63.5" text-anchor="middle" class="tx" style="font-size:2.8px">выкл.</text>
+      </g>
+      <g transform="translate(150 16)">
+        <rect width="130" height="80" rx="4" class="wall"/><rect x="2" y="2" width="126" height="76" rx="3" class="inner"/>
+        <rect x="5" y="5" width="65" height="30" rx="2" class="part"/><rect x="8" y="7" width="51" height="5" rx="1" class="hdr"/>
+        <text x="37.5" y="22" text-anchor="middle" class="tx" style="font-size:3.6px">Orange Pi Zero 2W</text><text x="37.5" y="28" text-anchor="middle" class="tm" style="font-size:2.9px">гребёнка 2×20 сверху</text>
+        <rect x="5" y="46" width="100" height="26" rx="3" class="partd"/><text x="55" y="61" text-anchor="middle" class="tx" style="font-size:3.6px">хаб USB, 4 порта</text>
+        <rect x="76" y="7" width="9" height="7" rx="1" class="part2"/><text x="80.5" y="19" text-anchor="middle" class="tm" style="font-size:2.8px">BT</text>
+        <rect x="89" y="7" width="15" height="24" rx="2" class="part2"/><text x="96.5" y="36" text-anchor="middle" class="tm" style="font-size:2.8px">приёмник</text>
+        <rect x="108" y="7" width="15" height="14" rx="2" class="ghost"/><text x="115.5" y="26" text-anchor="middle" class="tm" style="font-size:2.6px">камера</text><text x="115.5" y="30" text-anchor="middle" class="tm" style="font-size:2.6px">(потом)</text>
+        <circle cx="114" cy="62" r="7" class="ghost"/><text x="114" y="74" text-anchor="middle" class="tm" style="font-size:2.6px">кабель хаба</text>
+        <rect x="9" y="36" width="10" height="7" rx="1" class="knob"/><text x="22" y="41.5" class="tm" style="font-size:2.6px">OTG + пульт, провод наружу</text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>Черновая компоновка. Точное расположение зависит от того, куда смотрят порты у купленного хаба. Финальный корпус я нарисую по замерам и отдам на 3D-печать.</figcaption>
+  </figure>
+
+  <h3>Из чего складывается вес коробки</h3>
+  <div class="bars" role="list">
+    <div class="bar" role="listitem"><span>2 × 18650</span><i style="width:100%"></i><span>92 г</span></div>
+    <div class="bar" role="listitem"><span>Корпус (3D-печать)</span><i class="m" style="width:60%"></i><span>55 г</span></div>
+    <div class="bar" role="listitem"><span>Хаб USB</span><i class="d" style="width:38%"></i><span>35 г</span></div>
+    <div class="bar" role="listitem"><span>Orange Pi + гребёнка</span><i class="g" style="width:20%"></i><span>18 г</span></div>
+    <div class="bar" role="listitem"><span>Боксы для 18650</span><i style="width:17%"></i><span>16 г</span></div>
+    <div class="bar" role="listitem"><span>Модем без корпуса</span><i class="d" style="width:16%"></i><span>15 г</span></div>
+    <div class="bar" role="listitem"><span>Провода</span><i class="m" style="width:16%"></i><span>15 г</span></div>
+    <div class="bar" role="listitem"><span>Модуль, INA219, выкл.</span><i class="g" style="width:15%"></i><span>14 г</span></div>
+    <div class="bar" role="listitem"><span>Адаптеры, приёмник, BT</span><i class="d" style="width:20%"></i><span>18 г</span></div>
+  </div>
+  <p class="note">Итого ≈ 280–290 г. Для сравнения: смартфон весит 180–200 г, пауэрбанк на 10 000 мА·ч около 210 г.</p>
+</section>
+
+<section id="board">
+  <div class="eyebrow">02 · Выбор платы</div>
+  <h2>Почему остаёмся на Orange Pi Zero 2W</h2>
+  <p>Плата действительно самая маленькая часть устройства, и есть логичная мысль: взять плату покрупнее с готовыми USB-портами и выкинуть хаб. Я проверил всё, что сейчас есть в Питере. Выигрыша это не даёт. Плата 85×56 мм занимает столько же места, сколько хаб, тратит в 3–4 раза больше энергии и в кармане без кулера греется.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Плата</th><th>Размер</th><th>USB / Bluetooth</th><th class="num">Потребление</th><th>Где взять</th><th>Итог</th></tr></thead>
+    <tbody>
+      <tr><td><b>Orange Pi Zero 2W, 2 ГБ</b></td><td class="mono">65×30</td><td>1 порт; Bluetooth ненадёжный, нужен USB-адаптер</td><td class="num">≈ 0,7 Вт</td><td>Амперкот СПб, в наличии</td><td><span class="pill ok">берём</span></td></tr>
+      <tr><td>Raspberry Pi Zero 2 W</td><td class="mono">65×30</td><td>1 порт; Bluetooth работает сразу, есть разъём камеры</td><td class="num">≈ 0,7 Вт</td><td>Только предзаказ (Амперкот 4 600 ₽) или под заказ от 10 дней</td><td><span class="pill mid">лучше, но ждать</span></td></tr>
+      <tr><td>Raspberry Pi 3B+</td><td class="mono">85×56</td><td>4 порта; Bluetooth надёжный</td><td class="num">≈ 2 Вт</td><td>Нет в наличии</td><td><span class="pill no">крупнее</span></td></tr>
+      <tr><td>Raspberry Pi 4, 2 ГБ</td><td class="mono">85×56</td><td>4 порта; Bluetooth надёжный</td><td class="num">≈ 3 Вт</td><td>12–17 тыс. ₽, наличие под вопросом</td><td><span class="pill no">греется в кармане</span></td></tr>
+      <tr><td>Banana Pi M4 Zero</td><td class="mono">65×30</td><td>Тот же процессор, те же проблемы</td><td class="num">≈ 0,8 Вт</td><td>Амперкот, 10 500 ₽</td><td><span class="pill no">дороже без плюсов</span></td></tr>
+      <tr><td>OrangePi RV (RISC-V)</td><td class="mono">85×56</td><td>4 порта</td><td class="num">≈ 2,5 Вт</td><td>Амперкот, 12 530 ₽</td><td><span class="pill no">нет нужного софта</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="verdict"><p>Основной объём дают модем, батарея и хаб, а не плата. Компактнее всего можно сделать, если интегрировать всё, как в телефоне. Но тогда это уже не микрокомпьютер, а приложение для Android. Если захочешь сэкономить 4 000 ₽ и подождать, Raspberry Pi Zero 2 W из предзаказа встаёт на то же место без переделок, и с ней не нужен Bluetooth-адаптер.</p></div>
+</section>
+
+<section id="power">
+  <div class="eyebrow">03 · Питание</div>
+  <h2>18650 внутри или пауэрбанк</h2>
+  <p>По размеру и весу варианты почти равны: пауэрбанк плотнее упакован, а 18650 в боксах занимают лишний воздух. Разница в удобстве.</p>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>18650 внутри</th><th>Пауэрбанк внутри корпуса</th><th>Пауэрбанк отдельно</th></tr></thead>
+    <tbody>
+      <tr><td>Предметов в кармане</td><td>1</td><td>1</td><td>2 + кабель</td></tr>
+      <tr><td>Размер</td><td class="mono">130×80×45</td><td class="mono">130×80×42</td><td class="mono">125×75×30 + 100×66×13</td></tr>
+      <tr><td>Вес</td><td class="mono">≈ 290 г</td><td class="mono">≈ 300 г</td><td class="mono">≈ 285 г</td></tr>
+      <tr><td>Время работы</td><td>≈ 7 ч</td><td>≈ 6 ч (5000 мА·ч)</td><td>≈ 6 ч (5000 мА·ч)</td></tr>
+      <tr><td>Заряд голосом</td><td><span class="pill ok">да, через INA219</span></td><td><span class="pill no">нет</span></td><td><span class="pill no">нет</span></td></tr>
+      <tr><td>Провод может выпасть</td><td><span class="pill ok">нет</span></td><td><span class="pill ok">нет</span></td><td><span class="pill no">да</span></td></tr>
+      <tr><td>Сборка</td><td>Мастерская паяет батарейный блок</td><td>Просто вложить</td><td>Ничего</td></tr>
+      <tr><td>Стоимость питания</td><td class="mono">≈ 1 600 ₽</td><td class="mono">≈ 1 500 ₽</td><td class="mono">≈ 1 500 ₽</td></tr>
+    </tbody>
+  </table></div>
+  <div class="verdict"><p><b>Беру 18650 внутри.</b> Устройство получается одним предметом, ничего не выпадет, и оно может голосом сказать заряд, о чём ты просил. Батарейный блок за полчаса соберут в мастерской вместе с остальной пайкой. Если нормальные аккумуляторы не найдутся, план Б: тонкий пауэрбанк на 5000 мА·ч внутри того же корпуса.</p></div>
+  <h3>Где брать 18650</h3>
+  <ul class="plain">
+    <li>Хорошие банки (Samsung 30Q, Sony VTC6) в Амперкоте сейчас закончились. Бери на <a href="https://www.ozon.ru/search/?text=аккумулятор+18650+samsung+35e" target="_blank" rel="noopener">Ozon</a> или Яндекс Маркете: Samsung 35E, 30Q или LiitoKala Lii-35A, у продавца с сотнями отзывов.</li>
+    <li>Нужны <b>2 одинаковые новые банки из одной партии</b>, ёмкостью 3000–3500 мА·ч, с плоским или выпуклым плюсом.</li>
+    <li>Не бери «9900 мА·ч» и ноунейм за 100 ₽: это подделки, их реальная ёмкость в 3–5 раз меньше.</li>
+  </ul>
+</section>
+
+<section id="scheme">
+  <div class="eyebrow">04 · Схема</div>
+  <h2>Что с чем соединено</h2>
+  <div class="legend">
+    <span class="chip"><span class="dot" style="background:var(--copper)"></span>питание 5 В</span>
+    <span class="chip"><span class="dot" style="background:var(--data)"></span>USB и I²C</span>
+    <span class="chip"><span class="dot" style="background:var(--pcb)"></span>пульт, 6 жил</span>
+    <span class="chip"><span class="dot" style="background:var(--muted)"></span>радио, без проводов</span>
+  </div>
+  <figure class="fig">
+    <div class="scroll">
+    <svg class="wide" viewBox="0 0 900 440" role="img" aria-label="Блок-схема: батарея, модуль питания, выключатель, Orange Pi, хаб, модем, Bluetooth, приёмник петлички, пульт">
+      <!-- power lines -->
+      <path d="M170 58 H220" class="pw"/><path d="M400 58 H450" class="pw"/>
+      <path d="M545 58 H575 V130 H395 V170" class="pw"/><path d="M575 130 H660 V170" class="pw"/>
+      <path d="M95 86 V170" class="pw" stroke-dasharray="5 4"/>
+      <text x="103" y="132" class="tm" style="font-size:12px">замер</text>
+      <text x="420" y="122" class="tm" style="font-size:12px">5 В → пины 4/6</text>
+      <text x="590" y="122" class="tm" style="font-size:12px">5 В → питание хаба</text>
+      <!-- data -->
+      <path d="M170 205 H300" class="dt"/><text x="185" y="198" class="tm" style="font-size:12px">I²C, пины 1/3/5/14</text>
+      <path d="M490 205 H575" class="dt"/><text x="496" y="198" class="tm" style="font-size:12px">USB-C + OTG</text>
+      <path d="M660 226 V265 H600 V290 M660 265 H720 V290" class="dt"/>
+      <!-- gpio -->
+      <path d="M395 340 V260" class="gp"/><text x="405" y="306" class="tm" style="font-size:12px">6 жил ≈ 80 см, пины 7/9/11/13/15/17</text>
+      <!-- rf -->
+      <path d="M600 330 V380 H520" class="rf"/><path d="M720 330 V380 H800" class="rf"/>
+      <!-- nodes -->
+      <rect x="20" y="30" width="150" height="56" rx="6" class="node"/><text x="95" y="54" text-anchor="middle" class="tb" style="font-size:14px">2 × 18650</text><text x="95" y="73" text-anchor="middle" class="tm" style="font-size:12px">параллельно ≈ 6000 мА·ч</text>
+      <rect x="220" y="30" width="180" height="56" rx="6" class="node"/><text x="310" y="54" text-anchor="middle" class="tb" style="font-size:14px">Модуль 5 В 2,4 А</text><text x="310" y="73" text-anchor="middle" class="tm" style="font-size:12px">зарядка через USB-C</text>
+      <rect x="450" y="38" width="95" height="40" rx="6" class="node"/><text x="497" y="63" text-anchor="middle" class="tb" style="font-size:13px">Выключатель</text>
+      <rect x="20" y="170" width="150" height="56" rx="6" class="node"/><text x="95" y="194" text-anchor="middle" class="tb" style="font-size:14px">INA219</text><text x="95" y="213" text-anchor="middle" class="tm" style="font-size:12px">голосом сообщает заряд</text>
+      <rect x="300" y="170" width="190" height="90" rx="6" class="node-g"/><text x="395" y="205" text-anchor="middle" class="tb" style="font-size:15px">Orange Pi Zero 2W</text><text x="395" y="225" text-anchor="middle" class="tm" style="font-size:12px">2 ГБ · Linux · Vosk</text><text x="395" y="243" text-anchor="middle" class="tm" style="font-size:12px">библиотека · VPN · Claude API</text>
+      <rect x="575" y="170" width="170" height="56" rx="6" class="node"/><text x="660" y="194" text-anchor="middle" class="tb" style="font-size:14px">Хаб USB</text><text x="660" y="213" text-anchor="middle" class="tm" style="font-size:12px">4 порта, свой ввод 5 В</text>
+      <rect x="545" y="290" width="110" height="40" rx="6" class="node"/><text x="600" y="315" text-anchor="middle" class="tb" style="font-size:12px">BT UB500</text>
+      <rect x="665" y="290" width="115" height="40" rx="6" class="node"/><text x="722" y="315" text-anchor="middle" class="tb" style="font-size:12px">Приёмник петл.</text>
+      <rect x="300" y="340" width="190" height="56" rx="6" class="node"/><text x="395" y="364" text-anchor="middle" class="tb" style="font-size:14px">Пульт</text><text x="395" y="383" text-anchor="middle" class="tm" style="font-size:12px">энкодер EC11 + кнопка</text>
+      <rect x="760" y="170" width="125" height="56" rx="6" class="node"/><text x="822" y="194" text-anchor="middle" class="tb" style="font-size:13px">Модем E3372</text><text x="822" y="213" text-anchor="middle" class="tm" style="font-size:12px">SIM, LTE</text>
+      <path d="M745 198 H760" class="dt"/>
+      <text x="515" y="376" text-anchor="end" class="tx" style="font-size:13px">BT-наушники</text>
+      <text x="805" y="376" class="tx" style="font-size:13px">петличка</text>
+      <path d="M822 226 V255 H880" class="rf"/><text x="880" y="250" text-anchor="end" class="tx" style="font-size:12px">LTE → VPN</text><text x="880" y="272" text-anchor="end" class="tm" style="font-size:12px">→ Claude API</text>
+      <text x="792" y="302" class="tm" style="font-size:12px">4-й порт хаба</text><text x="792" y="318" class="tm" style="font-size:12px">свободен (камера)</text>
+    </svg>
+    </div>
+    <figcaption>Модем и хаб питаются напрямую от батарейного модуля, а не через плату. Так плата не перезагружается, когда модем при передаче берёт много тока.</figcaption>
+  </figure>
+</section>
+
+<section id="pins">
+  <div class="eyebrow">05 · Распиновка</div>
+  <h2>Какие выводы платы занимаем</h2>
+  <p>Из 40 выводов используем 12. Нумерация физическая, как на Raspberry Pi: вывод 1 стоит в углу рядом с отметкой на плате. Перед подключением я ещё раз сверю их с документацией Orange Pi.</p>
+  <figure class="fig">
+    <div class="scroll"><svg id="header" class="wide" viewBox="0 0 236 76" role="img" aria-label="Гребёнка 2×20 с отмеченными выводами"></svg></div>
+    <figcaption>Верхний ряд: чётные выводы (2…40). Нижний ряд: нечётные (1…39).</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <thead><tr><th class="num">Вывод</th><th>Функция</th><th>Куда</th><th>Провод</th></tr></thead>
+    <tbody>
+      <tr><td class="num">4</td><td>5 В (вход)</td><td>питание от выключателя</td><td><span class="dot" style="background:var(--copper)"></span> красный</td></tr>
+      <tr><td class="num">6</td><td>GND</td><td>минус питания</td><td><span class="dot" style="background:var(--ink)"></span> чёрный</td></tr>
+      <tr><td class="num">1</td><td>3,3 В</td><td>INA219 VCC</td><td><span class="dot" style="background:var(--amber)"></span></td></tr>
+      <tr><td class="num">3</td><td>I²C SDA</td><td>INA219 SDA</td><td><span class="dot" style="background:var(--data)"></span></td></tr>
+      <tr><td class="num">5</td><td>I²C SCL</td><td>INA219 SCL</td><td><span class="dot" style="background:var(--data)"></span></td></tr>
+      <tr><td class="num">14</td><td>GND</td><td>INA219 GND</td><td><span class="dot" style="background:var(--ink)"></span></td></tr>
+      <tr><td class="num">17</td><td>3,3 В</td><td>пульт: «+» энкодера</td><td><span class="dot" style="background:var(--amber)"></span> оранжевый</td></tr>
+      <tr><td class="num">9</td><td>GND</td><td>пульт: общий минус</td><td><span class="dot" style="background:var(--ink)"></span> коричневый</td></tr>
+      <tr><td class="num">11</td><td>PH2</td><td>пульт: энкодер S1</td><td><span class="dot" style="background:var(--pcb)"></span> зелёный</td></tr>
+      <tr><td class="num">13</td><td>PH3</td><td>пульт: энкодер S2</td><td><span class="dot" style="background:var(--pcb)"></span> бело-зелёный</td></tr>
+      <tr><td class="num">15</td><td>PI5</td><td>пульт: нажатие энкодера</td><td><span class="dot" style="background:var(--pcb)"></span> синий</td></tr>
+      <tr><td class="num">7</td><td>PI13</td><td>пульт: кнопка «говорить»</td><td><span class="dot" style="background:var(--pcb)"></span> бело-синий</td></tr>
+    </tbody>
+  </table></div>
+  <div class="verdict warn"><p><b>Важно:</b> на модуле энкодера вывод подписан «+5V», но подключать его нужно к <b>3,3 В</b> (вывод 17). Если подать 5 В на выходы энкодера, можно сжечь входы платы.</p></div>
+</section>
+
+<section id="remote">
+  <div class="eyebrow">06 · Пульт</div>
+  <h2>Пульт на проводе</h2>
+  <div class="cols">
+    <figure class="fig">
+      <svg viewBox="0 0 200 78" role="img" aria-label="Пульт: вид сверху и сбоку">
+        <rect x="0" y="0" width="200" height="78" fill="url(#g10)"/>
+        <rect x="10" y="16" width="45" height="32" rx="7" class="part2"/>
+        <circle cx="27" cy="32" r="10" class="knob"/><circle cx="27" cy="32" r="3.5" class="knob"/>
+        <rect x="40" y="46" width="10" height="4" rx="1" class="knob"/>
+        <path d="M55 32 C70 32 72 40 95 40" class="cable"/>
+        <text x="32.5" y="10" text-anchor="middle" class="tm" style="font-size:3.6px">сверху · 45 × 32</text>
+        <text x="45" y="58" text-anchor="middle" class="tm" style="font-size:3.2px">кнопка «говорить» на боку</text>
+        <text x="80" y="47" class="tm" style="font-size:3.2px">к коробке</text>
+        <rect x="112" y="40" width="45" height="22" rx="5" class="part2"/>
+        <rect x="121" y="26" width="20" height="14" rx="2" class="knob"/>
+        <text x="134.5" y="18" text-anchor="middle" class="tm" style="font-size:3.6px">сбоку · 22 мм + ручка</text>
+        <text x="134.5" y="70" text-anchor="middle" class="tm" style="font-size:3.2px">энкодер под большой палец</text>
+      </svg>
+      <figcaption>Ручка энкодера сверху под большой палец, кнопка «говорить» на боку под указательный. Всё находится на ощупь.</figcaption>
+    </figure>
+    <div class="tbl"><table>
+      <thead><tr><th>Жила</th><th>На пульте</th><th class="num">Вывод платы</th></tr></thead>
+      <tbody>
+        <tr><td>коричневая</td><td>GND энкодера + одна ножка кнопки</td><td class="num">9</td></tr>
+        <tr><td>оранжевая</td><td>«+» энкодера</td><td class="num">17 (3,3 В)</td></tr>
+        <tr><td>зелёная</td><td>S1</td><td class="num">11</td></tr>
+        <tr><td>бело-зелёная</td><td>S2</td><td class="num">13</td></tr>
+        <tr><td>синяя</td><td>KEY (нажатие ручки)</td><td class="num">15</td></tr>
+        <tr><td>бело-синяя</td><td>вторая ножка кнопки</td><td class="num">7</td></tr>
+        <tr><td class="muted">бело-оранж., бело-корич.</td><td class="muted">запасные, не подключать</td><td class="num">—</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Действие</th><th>Что происходит</th></tr></thead>
+    <tbody>
+      <tr><td>Зажал кнопку, говоришь, отпустил</td><td>Ищет ответ в библиотеке, если не нашёл, спрашивает нейронку</td></tr>
+      <tr><td>Крутишь ручку во время ответа</td><td>Перемотка по фразам</td></tr>
+      <tr><td>Нажал на ручку</td><td>Пауза или продолжение</td></tr>
+      <tr><td>Двойное нажатие</td><td>Подробный ответ</td></tr>
+      <tr><td>Удержание ручки</td><td>Режим листания: крутишь, звучат вопросы, нажатие открывает ответ</td></tr>
+      <tr><td>Удержание ручки 5 с</td><td>Меню: громкость, скорость речи, заряд голосом</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="buy">
+  <div class="eyebrow">07 · Покупки</div>
+  <h2>Что купить</h2>
+  <p>Отмечай купленное галочками, они сохраняются в этом браузере. Наличие в Амперкоте я проверил сегодня. Перед поездкой открой ссылку и посмотри ещё раз.</p>
+  <div id="shop" class="shop"></div>
+  <div class="totals" id="totals"></div>
+</section>
+
+<section id="workshop">
+  <div class="eyebrow">08 · Пайка</div>
+  <h2>Задание для мастерской</h2>
+  <p>Пайки теперь больше, чем просто гребёнка: добавились пульт и батарейный блок. Это работа примерно на час, ориентир 1 000–2 000 ₽. Сначала позвони и прочитай текст ниже или скопируй его в мессенджер. Возьми с собой все детали и скинь этот файл себе на телефон, чтобы показать мастеру таблицы распиновки.</p>
+  <pre class="job" id="jobText">Здравствуйте! Нужно спаять небольшое устройство, детали и схема мои.
+
+1. Припаять гребёнку 2×20 (40 штырей, отрезать от PLD-80) к плате Orange Pi Zero 2W, штыри вверх.
+
+2. Пульт: снять оболочку с 80 см патч-корда, 6 жил из 8 припаять к модулю энкодера EC11 и тактовой кнопке 12×12 по таблице. На другом конце к этим 6 жилам припаять гнёзда Dupont (отрезать от проводов мама-мама) в термоусадке.
+
+3. Батарея: два бокса 1×18650 соединить ПАРАЛЛЕЛЬНО (плюс с плюсом, минус с минусом) и подключить к B+ / B− модуля повербанка 5 В 2,4 А.
+
+4. Выход 5 В модуля (через штекер USB-A под пайку) завести на выключатель KCD1-11, после него два отвода:
+   а) 2 провода с гнёздами Dupont (5 В и GND) к плате;
+   б) штекер USB-C под пайку для питания хаба.
+
+5. INA219: VIN+ и VIN− на плюс батареи, GND на минус батареи. К выводам VCC, GND, SDA, SCL 4 провода с гнёздами Dupont.
+
+Сколько будет стоить и когда можно подойти?</pre>
+  <button class="copy" id="copyJob" type="button">Скопировать текст</button>
+  <div class="tbl"><table>
+    <thead><tr><th>Где</th><th>Адрес</th><th>Телефон</th><th class="num">Рейтинг</th></tr></thead>
+    <tbody>
+      <tr><td><b>Pedant.ru</b></td><td>7-я линия В.О., 24</td><td class="mono">+7 812 214-20-24</td><td class="num">5,0 · 12</td></tr>
+      <tr><td><b>СКП Сервис</b></td><td>6-я линия В.О., 59, офис 24</td><td class="mono">+7 981 335-84-36</td><td class="num">4,7 · 14</td></tr>
+      <tr><td><b>Промастера</b></td><td>Косая линия, 16</td><td class="mono">+7 812 424-17-45</td><td class="num">5,0 · 9</td></tr>
+      <tr><td><b>Паяльная №1</b>, центр пайки (не на В.О.)</td><td>Киришская, 2А, офис 523</td><td class="mono">+7 921 564-79-79</td><td class="num">—</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Сервисы по ремонту телефонов могут отказаться от батарейного блока. Если откажут, Паяльная №1 делает такое точно. Рейтинги взяты с Zoon.</p>
+  <h3>Или паять самому</h3>
+  <ul class="plain">
+    <li>Это реально, вся пайка здесь штыревая, без микросхем. Инструмент из списка покупок стоит около 6,5 тыс. ₽, зато останется у тебя.</li>
+    <li>Сначала соберёшь тренировочный набор «Сердце» за 140 ₽ и кусок лишней гребёнки, на это уйдёт 30–60 минут. Потом гребёнка на плате, потом пульт, батарейный блок в последнюю очередь.</li>
+    <li>Температура жала 330–350 °C. На каждый штырь 2–3 секунды, капля припоя должна получиться «горкой» и блестеть. Между соседними штырями не должно быть перемычек.</li>
+    <li>Батарейный блок паяй <b>без вставленных аккумуляторов</b>. Перед тем как вставить банки, проверь мультиметром, что плюс и минус не замкнуты и полярность совпадает с маркировкой на модуле.</li>
+    <li>К самим банкам 18650 паяльником не прикасайся, только к выводам боксов.</li>
+    <li>Плату паяй, когда она ни к чему не подключена. Проветривай комнату.</li>
+  </ul>
+</section>
+
+<section id="steps">
+  <div class="eyebrow">09 · Порядок</div>
+  <h2>Порядок сборки</h2>
+  <ol class="steps">
+    <li><div><h3>Купить детали</h3><p>Амперкот на Малой Московской (самовывоз в тот же день), остальное в DNS и на Ozon.</p></div><span class="who you">ты</span></li>
+    <li><div><h3>Проверить на компьютере</h3><p>Петличка должна определиться в Windows как микрофон, адаптер UB500 как Bluetooth. Если что-то не работает, сдай обратно, пока не начали паять.</p></div><span class="who you">ты</span></li>
+    <li><div><h3>Снять корпус с модема</h3><p>Пластик держится на защёлках, поддень пластиковой картой по шву. Антенны находятся на самой плате модема, так что ничего не теряется.</p></div><span class="who you">ты</span></li>
+    <li><div><h3>Пайка</h3><p>Отнести детали и задание из раздела 08. Аккумуляторы в боксы пока не вставлять.</p></div><span class="who shop">мастерская</span></li>
+    <li><div><h3>Подготовить карту памяти</h3><p>Я собираю образ системы с настройками твоего Wi-Fi. Ты записываешь его на microSD программой balenaEtcher.</p></div><span class="who me">я</span></li>
+    <li><div><h3>Первое включение на столе</h3><p>Плата питается от обычной USB-зарядки, без батареи. Она подключится к домашнему Wi-Fi, ты один раз добавишь мой SSH-ключ.</p></div><span class="who you">ты</span></li>
+    <li><div><h3>Настройка по SSH</h3><p>Система, Bluetooth-наушники, модем, VPN с автопереключением, распознавание речи Vosk, Claude API, плеер библиотеки, пульт, голосовой заряд. Ошибки я вижу и чиню сам.</p></div><span class="who me">я</span></li>
+    <li><div><h3>Тест на столе</h3><p>Пульт, голос, ответы в наушниках, работа через модем без Wi-Fi.</p></div><span class="who you">ты</span></li>
+    <li><div><h3>Батарея</h3><p>Вставить два 18650 строго по маркировке «+». Проверить зарядку через USB-C и замерить время работы.</p></div><span class="who you">ты</span></li>
+    <li><div><h3>Корпус</h3><p>Ты присылаешь замеры или фото с линейкой, я рисую корпус и пульт под 3D-печать. Печать в любом сервисе СПб стоит примерно 800–1 500 ₽.</p></div><span class="who me">я</span></li>
+  </ol>
+</section>
+
+<section id="risks">
+  <div class="eyebrow">10 · Риски</div>
+  <h2>Что может пойти не так</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Риск</th><th>Что делаем</th></tr></thead>
+    <tbody>
+      <tr><td>Встроенный Bluetooth Orange Pi не работает с наушниками</td><td>Для этого и куплен UB500, с ним Bluetooth работает надёжно</td></tr>
+      <tr><td>Дешёвая петличка работает только с телефонами</td><td>Проверка на шаге 2, иначе возврат</td></tr>
+      <tr><td>Хаб не помещается в компоновку</td><td>Снять с него корпус или заменить на плату-хаб без корпуса</td></tr>
+      <tr><td>Литиевые аккумуляторы</td><td>Модуль защищает от перезаряда и глубокого разряда. В корпусе будут вентиляционные отверстия. Первые зарядки не оставляй без присмотра. Банку со вмятиной или повреждённой плёнкой не используй</td></tr>
+      <tr><td>При подключении зарядки плата может перезагрузиться</td><td>Заряжать в выключенном состоянии, если так будет происходить</td></tr>
+      <tr><td>Vosk ошибается в словах</td><td>С петличкой у рта ошибок мало. Поиск по библиотеке ищет похожий вопрос, а не точное совпадение</td></tr>
+      <tr><td>Белые списки мобильного интернета</td><td>VPN сам переключается на серверы «Белые списки». Если не работает ничего, библиотека и голосовой поиск продолжают работать офлайн</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<footer>
+  <div>Размеры и вес рассчитаны по паспортам деталей, точность ±10%. Цены и наличие в Амперкоте СПб на 14.10.2026.</div>
+  <div>Источники: <a href="https://amperkot.ru/spb/catalog/" target="_blank" rel="noopener">Амперкот СПб</a> · <a href="https://git.munts.com/muntsos/doc/OrangePiZero2WPinout.pdf" target="_blank" rel="noopener">распиновка Orange Pi Zero 2W</a> · <a href="https://forum.armbian.com/topic/31654-orange-pi-zero-2w/" target="_blank" rel="noopener">Armbian: Orange Pi Zero 2W</a> · <a href="https://dietpi.com/forum/t/orange-pi-zero-2w-bluetooth/21615" target="_blank" rel="noopener">DietPi: Bluetooth на Zero 2W</a> · <a href="https://zoon.ru/spb/repair/type/sotovyh_telefonov/metro/vasileostrovskaya/" target="_blank" rel="noopener">Zoon: сервисы у Василеостровской</a></div>
+</footer>
+</div>
+
+<script>
+(function(){
+  // ---- 40-pin header drawing ----
+  var used = {
+    1:['p33','3,3В'],3:['pi2c','SDA'],4:['p5','5В'],5:['pi2c','SCL'],6:['pg','GND'],7:['pio','кнопка'],
+    9:['pg','GND'],11:['pio','S1'],13:['pio','S2'],14:['pg','GND'],15:['pio','KEY'],17:['p33','3,3В']
+  };
+  var svg = document.getElementById('header');
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  if(svg){
+    svg.appendChild(el('rect',{x:6,y:24,width:224,height:28,rx:3,'class':'hbg'}));
+    for(var i=0;i<20;i++){
+      var x = 16 + i*11;
+      var odd = 2*i+1, even = 2*i+2;
+      [[odd,45,62],[even,31,17]].forEach(function(p){
+        var n=p[0], u=used[n];
+        var c = el('circle',{cx:x,cy:p[1],r:3.6,'class':'pin'+(u?' '+u[0]:'')});
+        svg.appendChild(c);
+        var t = el('text',{x:x,y:p[2],'text-anchor':'middle','class':u?'tx':'tm',style:'font-size:'+(u?'3.6px':'3px')});
+        t.textContent = n; svg.appendChild(t);
+        if(u){
+          var l = el('text',{x:x,y:(n%2? p[2]+5.5 : p[2]-5),'text-anchor':'middle','class':'tm',style:'font-size:3px'});
+          l.textContent = u[1]; svg.appendChild(l);
+        }
+      });
+    }
+    var m = el('rect',{x:9,y:41,width:6,height:8,rx:1,fill:'none',style:'stroke:var(--warn);stroke-width:.6'});
+    svg.appendChild(m);
+  }
+
+  // ---- shopping list ----
+  var AK='https://amperkot.ru/spb/catalog/';
+  var groups = [
+    {id:'ak', title:'Амперкот, Малая Московская', sub:'самовывоз сегодня до 20:00', items:[
+      ['opi','Orange Pi Zero 2W, 2 ГБ',1,8650,AK+'orange_pi_zero_2w_allwinner_h618_2gb_lpddr4-40562784.html','ok'],
+      ['enc','Модуль энкодера EC11 с ручкой',1,92,AK+'modul_enkodera_ec11_s_knopkoy_i_ruchkoy_360_5v_20_impulsov_za_tsikl-40125674.html','ok'],
+      ['btn','Кнопка B3F 12×12 с колпачком',1,65,AK+'knopka_b3f4055_s_kolpachkom_ok_12x12_mm_bez_fiksatsii-41085396.html','ok'],
+      ['pld','Гребёнка PLD-80 двухрядная',1,35,AK+'lineyka_shtyirevaya_dvuhryadnaya_2h40_pin_254mm_pld80_chernyiy-39301909.html','ok'],
+      ['hub','Хаб UGREEN, 4 порта, доп. питание Type-C',1,1110,AK+'usb30_hab_ugreen__4_porta_typea_vneshnee_pitaniya_typec_02_metra_belyiy-40606942.html','ok'],
+      ['lc150','Переходник LDNIO LC150 (для приёмника петлички)',1,90,AK+'perehodnik_ldnio_lc150_typec__typea-40086310.html','ok'],
+      ['cr','Картридер microSD (если нет слота в ПК)',1,120,AK+'kompaktnyiy_usb_20_kartrider_dlya_micro_sd__tf_kart__spetsialno_dlya_raspberry_pi-41260999.html','ok'],
+      ['pwr','Модуль повербанка 5 В 2,4 А, Type-C/Type-A (2 шт., один запасной)',2,100,AK+'modul_zaryadnogo_ustroystva_dlya_litievyih_akkumulyatorov_37v_5v_24a_typec_typea-41259872.html','ok'],
+      ['box','Бокс для 1 аккумулятора 18650',2,35,AK+'boks_dlya_1_akkumulyatora_18650-24309218.html','ok'],
+      ['ina','Датчик INA219 (заряд голосом)',1,140,AK+'datchik_silyi_toka_i_napryazheniya_ina219_i2c-39163404.html','ok'],
+      ['sw','Мини-выключатель KCD1-11 3 А',2,8,AK+'mini_pereklyuchatel_kcd111_3a_250v_chernyiy-39303786.html','ok'],
+      ['usbm','Штекер USB-A под пайку',1,20,AK+'usb_konnektor_pod_payku_male-24118441.html','ok'],
+      ['usbc','Штекер USB-C под пайку',1,45,AK+'razem_dlya_payki_na_kabel_typec_usb_20_belyiy-39107371.html','ok'],
+      ['dup','Провода Dupont мама-мама 30 см, 40 шт.',1,105,AK+'soedinitelnyie_provoda_dupont__mamamama_40sht_raznotsvetnyie_30_sm-23871299.html','ok'],
+      ['patch','Патч-корд CAT6E 1 м (из него кабель пульта: 6 жил из 8)',1,110,AK+'setevoy_kabel_patchkord_cat6e_1_metr-41204158.html','ok']
+    ]},
+    {id:'net', title:'DNS и Ситилинк', sub:'точные карточки товаров', items:[
+      ['sd','DNS · microSD SanDisk Ultra 32 ГБ (SDSQUNR-032G-GN3MN)',1,600,'https://www.dns-shop.ru/product/c1f3c3c917653332/karta-pamati-sandisk-ultra-microsdhc-32-gb-sdsqunr-032g-gn3mn/','net'],
+      ['lav','DNS · петличка Maono Wave T1 mini Type-C (работает с ПК)',1,3000,'https://www.dns-shop.ru/product/1f2a0e1a0eced582/radiosistema-maono-wave-t1-mini-type-c/','net'],
+      ['cells','DNS · аккумуляторы LiitoKala 18650 3400 мА·ч, блистер 2 шт.',1,900,'https://www.dns-shop.ru/product/5f533be60095d582/akkumulator-liitokala-18650-3400-mac/','net'],
+      ['ub500','Ситилинк · Bluetooth-адаптер UGREEN CM390 (BT 5.0)',1,620,'https://www.citilink.ru/product/adapter-usb-ugreen-cm390-bt5-0-edr-20m-chernyi-2046972/','net'],
+      ['otg','Ситилинк · OTG-адаптер PERO AD02, USB-C (папа) → USB-A (мама)',1,220,'https://www.citilink.ru/product/adapter-otg-pero-ad02-prad02tusr-usb-f-usb-type-c-serebristyi-blister-2057879/','net'],
+      ['ext','USB-удлинитель 10–15 см (только если модем не встанет в хаб)',1,150,'https://www.dns-shop.ru/search/?q=usb+удлинитель+короткий','opt'],
+      ['sim','SIM-карта, тариф «для модема», 1–3 ГБ',1,0,'','net']
+    ]},
+    {id:'tools', title:'Инструмент, если паяешь сам', sub:'Амперкот, всё в наличии', items:[
+      ['iron','Паяльник FNIRSI HS-02 с регулировкой температуры (нужна зарядка USB-C PD от 65 Вт, как у ноутбука)',1,3425,AK+'fnirsi_hs02_portativnyiy_intellektualnyiy_payalnik_s_displeem_920v_pd_qc__blue-42057583.html','tool'],
+      ['iron2','или паяльник GOOT TQ-95 в розетку 220 В (если зарядки PD нет)',1,0,AK+'payalnik_goot_tq95_20_200w_220v_s_keramicheskim_nagrevatelem-24261665.html','tool'],
+      ['stand','Подставка для паяльника',1,340,AK+'podstavka_dlya_payalnika-24064873.html','tool'],
+      ['solder','Припой 0,6 мм, 100 г',1,580,AK+'pripoy_06mm_100_gramm-24126453.html','tool'],
+      ['flux','Флюс-паста MECHANIC MCN-UV10',1,490,AK+'bezgalogenovaya_flyus_pasta_mechanic_flux_mcnuv10_10g-39849353.html','tool'],
+      ['hs3','Термоусадка Ø3 мм, 1 м',1,69,AK+'termousadochnaya_trubka_chernaya_3mm__1_metr-23941667.html','tool'],
+      ['hs5','Термоусадка Ø5 мм, 1 м',1,58,AK+'termousadochnaya_trubka_chernaya_5mm__1_metr-23941669.html','tool'],
+      ['cut','Кусачки PS-10A',1,300,AK+'kusachki_ps10a_90_mm-41260288.html','tool'],
+      ['mm','Мультиметр DT9205A (проверка полярности и замыканий)',1,1050,AK+'tsifrovoy_multimetr_dt9205a-24346571.html','tool'],
+      ['learn','Тренировочный набор для пайки «Сердце»',1,140,AK+'diy_nabor_dlya_payki_serdtse-40164532.html','tool'],
+      ['hand','«Третья рука» с лупой (по желанию)',1,995,AK+'derzhatel_dlya_plat_tretya_ruka_mg16126a_s_uvelichitelnyim_steklom_s_funktsiey_podsvetki-23941823.html','opt']
+    ]},
+    {id:'have', title:'Уже есть', sub:'', items:[
+      ['modem','Модем Huawei/Brovi E3372',1,0,'','have'],
+      ['bt','Bluetooth-наушники',1,0,'','have']
+    ]}
+  ];
+  var status = {ok:['ok','в наличии'],mid:['mid','уточнить'],net:['mid','заказать'],opt:['mid','по желанию'],have:['have','есть'],tool:['mid','если сам']};
+  var KEY='kpa-shop-v1', done={};
+  try{ done = JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ done={}; }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(done)); }catch(e){} }
+  function rub(n){ return n.toLocaleString('ru-RU')+' ₽'; }
+  var root = document.getElementById('shop');
+  groups.forEach(function(g){
+    var wrap=document.createElement('div');
+    var sum=0; g.items.forEach(function(it){ if(it[5]!=='opt') sum+=it[3]*Number(it[2]); });
+    var h=document.createElement('h3'); h.innerHTML = g.title + (g.sub?' <small>'+g.sub+'</small>':'') + (sum?' <small>≈ '+rub(sum)+'</small>':'');
+    wrap.appendChild(h);
+    var tw=document.createElement('div'); tw.className='tbl';
+    var t=document.createElement('table');
+    t.innerHTML='<thead><tr><th></th><th>Что</th><th class="num">Шт.</th><th class="num">Цена</th><th>Статус</th></tr></thead>';
+    var tb=document.createElement('tbody');
+    g.items.forEach(function(it){
+      var tr=document.createElement('tr'); var id='buy-'+it[0];
+      if(done[it[0]] || it[5]==='have') tr.className='done';
+      var name = it[4] ? '<a href="'+it[4]+'" target="_blank" rel="noopener">'+it[1]+'</a>' : it[1];
+      var st = status[it[5]];
+      tr.innerHTML='<td><input type="checkbox" id="'+id+'" aria-label="Куплено: '+it[1].replace(/"/g,'')+'"'+((done[it[0]]||it[5]==='have')?' checked':'')+(it[5]==='have'?' disabled':'')+'></td>'+
+        '<td>'+name+'</td><td class="num">'+it[2]+'</td><td class="num">'+(it[3]?rub(it[3]*Number(it[2])):'—')+'</td>'+
+        '<td><span class="pill '+st[0]+'">'+st[1]+'</span></td>';
+      tb.appendChild(tr);
+      tr.querySelector('input').addEventListener('change',function(e){
+        if(e.target.checked) done[it[0]]=1; else delete done[it[0]];
+        tr.className = e.target.checked ? 'done' : ''; save(); totals();
+      });
+    });
+    t.appendChild(tb); tw.appendChild(t); wrap.appendChild(tw); root.appendChild(wrap);
+  });
+  function totals(){
+    var all=0, bought=0, tools=0;
+    groups.forEach(function(g){ g.items.forEach(function(it){
+      if(it[5]==='opt'||it[5]==='have') return;
+      var v=it[3]*Number(it[2]);
+      if(it[5]==='tool'){ tools+=v; }else{ all+=v; }
+      if(done[it[0]]) bought+=v;
+    });});
+    var shop=1500, print=1200;
+    document.getElementById('totals').innerHTML =
+      '<span>Детали <b>'+rub(all)+'</b></span><span>Мастерская ≈ <b>'+rub(shop)+'</b></span><span class="muted">или инструмент ≈ '+rub(tools)+'</span><span>3D-печать ≈ <b>'+rub(print)+'</b></span><span>Всего с мастерской ≈ <b>'+rub(all+shop+print)+'</b></span><span class="muted">Куплено на '+rub(bought)+'</span>';
+    var sb=document.getElementById('specBudget'); if(sb) sb.textContent='≈ '+Math.round((all)/1000)+' тыс. ₽';
+  }
+  totals();
+
+  // ---- copy ----
+  var btn=document.getElementById('copyJob');
+  btn.addEventListener('click',function(){
+    var txt=document.getElementById('jobText').textContent;
+    function fallback(){ var r=document.createRange(); r.selectNodeContents(document.getElementById('jobText')); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent='Текст выделен, нажми «Копировать»'; }
+    try{
+      navigator.clipboard.writeText(txt).then(function(){ btn.textContent='Скопировано'; setTimeout(function(){btn.textContent='Скопировать текст';},2000); }, fallback);
+    }catch(e){ fallback(); }
+  });
+})();
+</script>
+</body>
+</html>
