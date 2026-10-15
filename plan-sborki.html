@@ -55,6 +55,7 @@ header{display:grid;gap:14px;padding-block:8px 28px;border-bottom:1px solid var(
 nav.toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;padding-block:16px}
 nav.toc a{text-decoration:none;border-bottom:1px solid var(--line);color:var(--ink)}
 section{display:grid;gap:16px;padding-block:36px;border-bottom:1px solid var(--line)}
+section>*,.shop>*{min-width:0}
 .fig{background:var(--card);border:1px solid var(--line);padding:14px;display:grid;gap:8px;min-width:0}
 .fig .scroll{overflow-x:auto}
 .fig svg{display:block;width:100%;height:auto}
@@ -140,19 +141,55 @@ footer{padding-block:28px 0;font-size:13px;color:var(--muted);display:grid;gap:6
 <body>
 <div class="wrap">
 <header>
-  <div class="eyebrow">План сборки · версия 1.1 · обновлено 15 октября 2026</div>
+  <div class="eyebrow">План сборки · версия 1.2 · обновлено 15 октября 2026, вечер</div>
   <h1>Карманный ассистент</h1>
   <p class="lead">Устройство «вопрос — ответ» с голосовым вводом. Внутри Orange Pi Zero 2W, твой модем E3372 и батарея из двух 18650. Управление вынесено на пульт на проводе, ответы звучат в Bluetooth-наушниках. Все размеры и вес рассчитаны по паспортам деталей, точность ±10%. Корпус я спроектирую по реальным замерам, когда детали будут у тебя.</p>
   <div class="specs" aria-label="Главные цифры">
     <div class="spec"><b>130×80×45</b><span>мм, основная коробка</span></div>
     <div class="spec"><b>≈ 290 г</b><span>коробка, плюс пульт ≈ 35 г</span></div>
     <div class="spec"><b>≈ 7 ч</b><span>работы от 2 × 18650</span></div>
-    <div class="spec"><b id="specBudget">≈ 16 тыс. ₽</b><span>детали, модем уже есть</span></div>
+    <div class="spec"><b id="specBudget">≈ 21 тыс. ₽</b><span>устройство целиком, без инструмента</span></div>
   </div>
   <nav class="toc" aria-label="Разделы">
-    <a href="#look">Как выглядит</a><a href="#board">Почему эта плата</a><a href="#power">18650 или пауэрбанк</a><a href="#scheme">Схема</a><a href="#pins">Распиновка</a><a href="#remote">Пульт</a><a href="#buy">Что купить</a><a href="#workshop">Пайка</a><a href="#steps">Порядок сборки</a><a href="#risks">Риски</a>
+    <a href="#tomorrow"><b>Завтра</b></a><a href="#buy"><b>Покупки</b></a><a href="#look">Как выглядит</a><a href="#board">Плата</a><a href="#power">18650 или пауэрбанк</a><a href="#scheme">Схема</a><a href="#pins">Распиновка</a><a href="#remote">Пульт</a><a href="#workshop">Пайка</a><a href="#steps">Порядок сборки</a><a href="#risks">Риски</a>
   </nav>
 </header>
+
+<section id="tomorrow">
+  <div class="eyebrow">00 · Пятница, 16 октября</div>
+  <h2>План на завтра</h2>
+  <div class="verdict"><p><b>Решено 15 октября: остаёмся на Orange Pi Zero 2W.</b> Raspberry убираем из заказа «Чип и Дип», а Orange Pi в Амперкот не возвращаем.</p></div>
+  <ol class="steps">
+    <li><div><h3>Позвонить в «Чип и Дип»</h3><p><span class="mono">+7 812 620-02-00</span>. Скажи: «Заказ 18087099, уберите, пожалуйста, Raspberry Pi Zero 2W, остальное заберу». Аккумуляторы, карта и изолента будут готовы 17–18 октября на Восстания, 8А.</p></div><span class="who you">утро</span></li>
+    <li><div><h3>Заказать Bluetooth-адаптер</h3><p>Ситилинк, ASUS USB-BT500, самовывоз из пункта выдачи на 6-й линии В.О., 43. Привезут 17 октября, бесплатно. Если нужен раньше, он есть в магазине Ситилинка на Пулковском шоссе, 43.</p></div><span class="who you">утро</span></li>
+    <li><div><h3>Мастер «Электроник»</h3><p>Как договаривались, ≈ 800 ₽. Неси Orange Pi и цветную гребёнку из её комплекта, текст для мастера в разделе «Пайка». 6-я линия В.О., 27, вход во дворе под арку, <span class="mono">+7 930 158-50-15</span>, до 20:00.</p></div><span class="who shop">мастерская</span></li>
+    <li><div><h3>Проверить плату после пайки</h3><p>Через лупу или камеру телефона: между штырями нет перемычек. Дома без SD-карты подай питание: красный светодиод горит, зелёный мигает, как до пайки.</p></div><span class="who you">после мастера</span></li>
+    <li><div><h3>Салон связи</h3><p>OTG-переходник USB-C (папа) → USB-A (мама): через него хаб подключается к плате. И SIM-карта с тарифом «для модема» или «для планшета», 1–3 ГБ в месяц.</p></div><span class="who you">когда удобно</span></li>
+  </ol>
+
+  <h3>Проверить дома</h3>
+  <ul class="plain">
+    <li><b>Bluetooth-наушники.</b> Они у тебя точно есть? В плане они записаны как имеющиеся.</li>
+    <li><b>Обычная зарядка USB-A</b> от телефона и кабель USB-A → USB-C. От них ты включаешь плату на столе и потом заряжаешь батарейный модуль. От зарядки MacBook (USB-C — USB-C) дешёвые платы и модули часто не берут питание.</li>
+    <li><b>Слот microSD в компьютере.</b> Карта в заказе идёт без SD-адаптера. Если слота нет, нужен любой USB-картридер для microSD: он есть в «Чип и Дип», в салонах связи и в DNS.</li>
+    <li><b>SIM-карта.</b> Вставь в любой телефон и отключи PIN-код. Потом вставь в модем, подключи модем к компьютеру и проверь, что интернет работает.</li>
+  </ul>
+
+  <h3>Не покупки, но тоже понадобится</h3>
+  <ul class="plain">
+    <li><b>Библиотека вопросов и ответов</b>, это главное. Начинай собирать в Excel в две колонки: «вопрос» и «ответ».</li>
+    <li><b>Ключ Claude API.</b> В консоли Anthropic нажмёшь «Create organization» и создашь ключ. Это делаешь ты сам, понадобится на этапе настройки.</li>
+    <li><b>Ссылка на подписку VPN</b> для устройства. Её ты тоже вставишь в настройки сам.</li>
+  </ul>
+</section>
+
+<section id="buy">
+  <div class="eyebrow">Покупки · статус на 15 октября</div>
+  <h2>Что есть и что осталось</h2>
+  <p>Отмечай галочками полученное, купленное и сданное. Галочки сохраняются в браузере, на телефоне и на компьютере они отдельные.</p>
+  <div class="totals" id="totals"></div>
+  <div id="shop" class="shop"></div>
+</section>
 
 <section id="look">
   <div class="eyebrow">01 · Размер и вес</div>
@@ -261,7 +298,7 @@ footer{padding-block:28px 0;font-size:13px;color:var(--muted);display:grid;gap:6
         <rect x="89" y="7" width="15" height="24" rx="2" class="part2"/><text x="96.5" y="36" text-anchor="middle" class="tm" style="font-size:2.8px">приёмник</text>
         <rect x="108" y="7" width="15" height="14" rx="2" class="ghost"/><text x="115.5" y="26" text-anchor="middle" class="tm" style="font-size:2.6px">камера</text><text x="115.5" y="30" text-anchor="middle" class="tm" style="font-size:2.6px">(потом)</text>
         <circle cx="114" cy="62" r="7" class="ghost"/><text x="114" y="74" text-anchor="middle" class="tm" style="font-size:2.6px">кабель хаба</text>
-        <rect x="9" y="36" width="10" height="7" rx="1" class="knob"/><text x="22" y="41.5" class="tm" style="font-size:2.6px">OTG + пульт, провод наружу</text>
+        <rect x="9" y="36" width="10" height="7" rx="1" class="knob"/><text x="22" y="41.5" class="tm" style="font-size:2.6px">USB-C OTG + пульт, провод наружу</text>
       </g>
     </svg>
     </div>
@@ -285,20 +322,20 @@ footer{padding-block:28px 0;font-size:13px;color:var(--muted);display:grid;gap:6
 
 <section id="board">
   <div class="eyebrow">02 · Выбор платы</div>
-  <h2>Почему остаёмся на Orange Pi Zero 2W</h2>
-  <p>Плата действительно самая маленькая часть устройства, и есть логичная мысль: взять плату покрупнее с готовыми USB-портами и выкинуть хаб. Я проверил всё, что сейчас есть в Питере. Выигрыша это не даёт. Плата 85×56 мм занимает столько же места, сколько хаб, тратит в 3–4 раза больше энергии и в кармане без кулера греется.</p>
+  <h2>Остаёмся на Orange Pi Zero 2W</h2>
+  <p>15 октября мы сравнили её с Raspberry Pi Zero 2 W, которая нашлась в «Чип и Дип», и оставили Orange Pi. Размер и распиновка у них одинаковые, а по железу Orange Pi сильнее.</p>
   <div class="tbl"><table>
-    <thead><tr><th>Плата</th><th>Размер</th><th>USB / Bluetooth</th><th class="num">Потребление</th><th>Где взять</th><th>Итог</th></tr></thead>
+    <thead><tr><th></th><th>Orange Pi Zero 2W</th><th>Raspberry Pi Zero 2 W</th></tr></thead>
     <tbody>
-      <tr><td><b>Orange Pi Zero 2W, 2 ГБ</b></td><td class="mono">65×30</td><td>1 порт; Bluetooth ненадёжный, нужен USB-адаптер</td><td class="num">≈ 0,7 Вт</td><td>Амперкот СПб, в наличии</td><td><span class="pill ok">берём</span></td></tr>
-      <tr><td>Raspberry Pi Zero 2 W</td><td class="mono">65×30</td><td>1 порт; Bluetooth работает сразу, есть разъём камеры</td><td class="num">≈ 0,7 Вт</td><td>Только предзаказ (Амперкот 4 600 ₽) или под заказ от 10 дней</td><td><span class="pill mid">лучше, но ждать</span></td></tr>
-      <tr><td>Raspberry Pi 3B+</td><td class="mono">85×56</td><td>4 порта; Bluetooth надёжный</td><td class="num">≈ 2 Вт</td><td>Нет в наличии</td><td><span class="pill no">крупнее</span></td></tr>
-      <tr><td>Raspberry Pi 4, 2 ГБ</td><td class="mono">85×56</td><td>4 порта; Bluetooth надёжный</td><td class="num">≈ 3 Вт</td><td>12–17 тыс. ₽, наличие под вопросом</td><td><span class="pill no">греется в кармане</span></td></tr>
-      <tr><td>Banana Pi M4 Zero</td><td class="mono">65×30</td><td>Тот же процессор, те же проблемы</td><td class="num">≈ 0,8 Вт</td><td>Амперкот, 10 500 ₽</td><td><span class="pill no">дороже без плюсов</span></td></tr>
-      <tr><td>OrangePi RV (RISC-V)</td><td class="mono">85×56</td><td>4 порта</td><td class="num">≈ 2,5 Вт</td><td>Амперкот, 12 530 ₽</td><td><span class="pill no">нет нужного софта</span></td></tr>
+      <tr><td>Память</td><td><span class="pill ok">2 ГБ</span> хватит на распознавание речи и поиск по библиотеке прямо на устройстве</td><td>512 МБ</td></tr>
+      <tr><td>Процессор</td><td>4 ядра до 1,5 ГГц</td><td>4 ядра 1 ГГц</td></tr>
+      <tr><td>Wi-Fi</td><td>2,4 и 5 ГГц</td><td>только 2,4 ГГц</td></tr>
+      <tr><td>Bluetooth для наушников</td><td><span class="pill mid">через адаптер</span> ASUS USB-BT500</td><td>встроенный</td></tr>
+      <tr><td>Порт для хаба</td><td>USB-C, через OTG-переходник USB-C → USB-A</td><td>microUSB</td></tr>
+      <tr><td>Статус</td><td><span class="pill ok">куплена</span></td><td>убираем из заказа</td></tr>
     </tbody>
   </table></div>
-  <div class="verdict"><p>Основной объём дают модем, батарея и хаб, а не плата. Компактнее всего можно сделать, если интегрировать всё, как в телефоне. Но тогда это уже не микрокомпьютер, а приложение для Android. Если захочешь сэкономить 4 000 ₽ и подождать, Raspberry Pi Zero 2 W из предзаказа встаёт на то же место без переделок, и с ней не нужен Bluetooth-адаптер.</p></div>
+  <div class="verdict"><p>Главная слабость Orange Pi, Bluetooth, закрывается USB-адаптером на чипе Realtek: с ним наушники на Linux работают надёжно. Платы крупнее, вроде Raspberry Pi 3B+ и 4, не помогают: они занимают столько же места, сколько хаб, тратят в 3–4 раза больше энергии и греются в кармане.</p></div>
 </section>
 
 <section id="power">
@@ -319,11 +356,11 @@ footer{padding-block:28px 0;font-size:13px;color:var(--muted);display:grid;gap:6
     </tbody>
   </table></div>
   <div class="verdict"><p><b>Беру 18650 внутри.</b> Устройство получается одним предметом, ничего не выпадет, и оно может голосом сказать заряд, о чём ты просил. Батарейный блок ты спаяешь сам, порядок описан в разделе 08. Если нормальные аккумуляторы не найдутся, план Б: тонкий пауэрбанк на 5000 мА·ч внутри того же корпуса.</p></div>
-  <h3>Где брать 18650</h3>
+  <h3>Аккумуляторы</h3>
   <ul class="plain">
-    <li>Хорошие банки (Samsung 30Q, Sony VTC6) в Амперкоте сейчас закончились. Бери на <a href="https://www.ozon.ru/search/?text=аккумулятор+18650+samsung+35e" target="_blank" rel="noopener">Ozon</a> или Яндекс Маркете: Samsung 35E, 30Q или LiitoKala Lii-35A, у продавца с сотнями отзывов.</li>
-    <li>Нужны <b>2 одинаковые новые банки из одной партии</b>, ёмкостью 3000–3500 мА·ч, с плоским или выпуклым плюсом.</li>
-    <li>Не бери «9900 мА·ч» и ноунейм за 100 ₽: это подделки, их реальная ёмкость в 3–5 раз меньше.</li>
+    <li><b>Заказаны:</b> 2 × Samsung INR18650-35E, 3400 мА·ч, в «Чип и Дип», заказ 18087099. Это оригинальные Samsung обычной длины 65 мм и без платы защиты. В боксы встают без примерки, а защита есть в модуле питания.</li>
+    <li>Перед соединением в параллель измерь мультиметром напряжение каждой банки. Разница должна быть меньше 0,1 В. Если больше, сначала зарядим банки по отдельности.</li>
+    <li>Двух банок по 3400 мА·ч хватит примерно на 7–8 часов работы.</li>
   </ul>
 </section>
 
@@ -361,7 +398,7 @@ footer{padding-block:28px 0;font-size:13px;color:var(--muted);display:grid;gap:6
       <rect x="20" y="170" width="150" height="56" rx="6" class="node"/><text x="95" y="194" text-anchor="middle" class="tb" style="font-size:14px">INA219</text><text x="95" y="213" text-anchor="middle" class="tm" style="font-size:12px">голосом сообщает заряд</text>
       <rect x="300" y="170" width="190" height="90" rx="6" class="node-g"/><text x="395" y="205" text-anchor="middle" class="tb" style="font-size:15px">Orange Pi Zero 2W</text><text x="395" y="225" text-anchor="middle" class="tm" style="font-size:12px">2 ГБ · Linux · Vosk</text><text x="395" y="243" text-anchor="middle" class="tm" style="font-size:12px">библиотека · VPN · Claude API</text>
       <rect x="575" y="170" width="170" height="56" rx="6" class="node"/><text x="660" y="194" text-anchor="middle" class="tb" style="font-size:14px">Хаб USB</text><text x="660" y="213" text-anchor="middle" class="tm" style="font-size:12px">4 порта, свой ввод 5 В</text>
-      <rect x="545" y="290" width="110" height="40" rx="6" class="node"/><text x="600" y="315" text-anchor="middle" class="tb" style="font-size:12px">BT UB500</text>
+      <rect x="545" y="290" width="110" height="40" rx="6" class="node"/><text x="600" y="315" text-anchor="middle" class="tb" style="font-size:12px">BT ASUS BT500</text>
       <rect x="665" y="290" width="115" height="40" rx="6" class="node"/><text x="722" y="315" text-anchor="middle" class="tb" style="font-size:12px">Приёмник петл.</text>
       <rect x="300" y="340" width="190" height="56" rx="6" class="node"/><text x="395" y="364" text-anchor="middle" class="tb" style="font-size:14px">Пульт</text><text x="395" y="383" text-anchor="middle" class="tm" style="font-size:12px">энкодер EC11 + кнопка</text>
       <rect x="760" y="170" width="125" height="56" rx="6" class="node"/><text x="822" y="194" text-anchor="middle" class="tb" style="font-size:13px">Модем E3372</text><text x="822" y="213" text-anchor="middle" class="tm" style="font-size:12px">SIM, LTE</text>
@@ -451,14 +488,6 @@ footer{padding-block:28px 0;font-size:13px;color:var(--muted);display:grid;gap:6
   </table></div>
 </section>
 
-<section id="buy">
-  <div class="eyebrow">07 · Покупки</div>
-  <h2>Что купить</h2>
-  <p>Отмечай купленное галочками, они сохраняются в этом браузере. Наличие в Амперкоте я проверил сегодня. Перед поездкой открой ссылку и посмотри ещё раз.</p>
-  <div id="shop" class="shop"></div>
-  <div class="totals" id="totals"></div>
-</section>
-
 <section id="workshop">
   <div class="eyebrow">08 · Пайка</div>
   <h2>Кто что паяет</h2>
@@ -525,7 +554,7 @@ footer{padding-block:28px 0;font-size:13px;color:var(--muted);display:grid;gap:6
   <h2>Порядок сборки</h2>
   <ol class="steps">
     <li><div><h3>Купить детали</h3><p>Амперкот на Малой Московской (самовывоз в тот же день), остальное в DNS и на Ozon.</p></div><span class="who you">ты</span></li>
-    <li><div><h3>Проверить на компьютере</h3><p>Петличка должна определиться в Windows как микрофон, адаптер UB500 как Bluetooth. Если что-то не работает, сдай обратно, пока не начали паять.</p></div><span class="who you">ты</span></li>
+    <li><div><h3>Проверить на компьютере</h3><p>Петличка должна определиться в Windows как микрофон, адаптер ASUS USB-BT500 как Bluetooth. Модем с SIM-картой должен дать интернет. Если что-то не работает, сдай обратно, пока не начали паять.</p></div><span class="who you">ты</span></li>
     <li><div><h3>Снять корпус с модема</h3><p>Пластик держится на защёлках, поддень пластиковой картой по шву. Антенны находятся на самой плате модема, так что ничего не теряется.</p></div><span class="who you">ты</span></li>
     <li><div><h3>Гребёнка на Orange Pi</h3><p>Отнести плату и гребёнку из её комплекта в мастерскую из раздела 08. Линейка PLD-80 остаётся тебе для тренировки на макетке. При получении проверить, что нет перемычек.</p></div><span class="who shop">мастерская</span></li>
     <li><div><h3>Пульт и батарейный блок</h3><p>Паяешь сам по разделу 08: сначала пульт, потом батарея. Аккумуляторы в боксы пока не вставлять.</p></div><span class="who you">ты</span></li>
@@ -544,7 +573,10 @@ footer{padding-block:28px 0;font-size:13px;color:var(--muted);display:grid;gap:6
   <div class="tbl"><table>
     <thead><tr><th>Риск</th><th>Что делаем</th></tr></thead>
     <tbody>
-      <tr><td>Встроенный Bluetooth Orange Pi не работает с наушниками</td><td>Для этого и куплен UB500, с ним Bluetooth работает надёжно</td></tr>
+      <tr><td>Встроенный Bluetooth Orange Pi не работает с наушниками</td><td>Для этого берём адаптер ASUS USB-BT500 на чипе Realtek, с ним Bluetooth работает надёжно</td></tr>
+      <tr><td>Плата или модуль питания не берут питание от зарядки MacBook</td><td>Включать и заряжать от обычной зарядки USB-A через кабель USB-A → USB-C</td></tr>
+      <tr><td>Модуль питания сам не включается после выключателя</td><td>Подпаяем кнопку к его контакту KEY</td></tr>
+      <tr><td>Хаб не берёт питание через самодельный штекер USB-C</td><td>Хаб работает и без него, питание тогда идёт через плату. Если понадобится, добавим резистор 56 кОм</td></tr>
       <tr><td>Дешёвая петличка работает только с телефонами</td><td>Проверка на шаге 2, иначе возврат</td></tr>
       <tr><td>Хаб не помещается в компоновку</td><td>Снять с него корпус или заменить на плату-хаб без корпуса</td></tr>
       <tr><td>Литиевые аккумуляторы</td><td>Модуль защищает от перезаряда и глубокого разряда. В корпусе будут вентиляционные отверстия. Первые зарядки не оставляй без присмотра. Банку со вмятиной или повреждённой плёнкой не используй</td></tr>
@@ -594,60 +626,66 @@ footer{padding-block:28px 0;font-size:13px;color:var(--muted);display:grid;gap:6
 
   // ---- shopping list ----
   var AK='https://amperkot.ru/spb/catalog/';
+  var CD='https://www.chipdip.ru/product/';
   var groups = [
-    {id:'ak', title:'Амперкот, Малая Московская', sub:'самовывоз сегодня до 20:00', items:[
-      ['opi','Orange Pi Zero 2W, 2 ГБ',1,8650,AK+'orange_pi_zero_2w_allwinner_h618_2gb_lpddr4-40562784.html','ok'],
-      ['enc','Модуль энкодера EC11 с ручкой',1,92,AK+'modul_enkodera_ec11_s_knopkoy_i_ruchkoy_360_5v_20_impulsov_za_tsikl-40125674.html','ok'],
-      ['btn','Кнопка B3F 12×12 с колпачком',1,65,AK+'knopka_b3f4055_s_kolpachkom_ok_12x12_mm_bez_fiksatsii-41085396.html','ok'],
-      ['pld','Гребёнка PLD-80 двухрядная',1,35,AK+'lineyka_shtyirevaya_dvuhryadnaya_2h40_pin_254mm_pld80_chernyiy-39301909.html','ok'],
-      ['hub','Хаб UGREEN, 4 порта, доп. питание Type-C',1,1110,AK+'usb30_hab_ugreen__4_porta_typea_vneshnee_pitaniya_typec_02_metra_belyiy-40606942.html','ok'],
-      ['lc150','Переходник LDNIO LC150 (для приёмника петлички)',1,90,AK+'perehodnik_ldnio_lc150_typec__typea-40086310.html','ok'],
-      ['cr','Картридер microSD (если нет слота в ПК)',1,120,AK+'kompaktnyiy_usb_20_kartrider_dlya_micro_sd__tf_kart__spetsialno_dlya_raspberry_pi-41260999.html','ok'],
-      ['pwr','Модуль повербанка 5 В 2,4 А, Type-C/Type-A (2 шт., один запасной)',2,100,AK+'modul_zaryadnogo_ustroystva_dlya_litievyih_akkumulyatorov_37v_5v_24a_typec_typea-41259872.html','ok'],
-      ['box','Бокс для 1 аккумулятора 18650',2,35,AK+'boks_dlya_1_akkumulyatora_18650-24309218.html','ok'],
-      ['ina','Датчик INA219 (заряд голосом)',1,140,AK+'datchik_silyi_toka_i_napryazheniya_ina219_i2c-39163404.html','ok'],
-      ['sw','Мини-выключатель KCD1-11 3 А',2,8,AK+'mini_pereklyuchatel_kcd111_3a_250v_chernyiy-39303786.html','ok'],
-      ['usbm','Штекер USB-A под пайку',1,20,AK+'usb_konnektor_pod_payku_male-24118441.html','ok'],
-      ['usbc','Штекер USB-C под пайку',1,45,AK+'razem_dlya_payki_na_kabel_typec_usb_20_belyiy-39107371.html','ok'],
-      ['dup','Провода Dupont мама-мама 30 см, 40 шт.',1,105,AK+'soedinitelnyie_provoda_dupont__mamamama_40sht_raznotsvetnyie_30_sm-23871299.html','ok'],
-      ['patch','Патч-корд CAT6E 1 м (из него кабель пульта: 6 жил из 8)',1,110,AK+'setevoy_kabel_patchkord_cat6e_1_metr-41204158.html','ok']
+    {id:'cd', title:'Заказ «Чип и Дип» №18087099', sub:'самовывоз ул. Восстания, 8А, оплата при получении', items:[
+      ['rpi','Raspberry Pi Zero 2 W: попросить убрать из заказа',1,8130,CD+'raspberry-pi-zero-2w-odnoplatnyy-kompyuter-na-raspberry-pi-9001606708','cancel'],
+      ['cells','Аккумулятор Samsung INR18650-35E, 3400 мА·ч',2,650,CD+'samsung-inr18650-35e-akkumulyator-li-ion-18650-samsung-sdi-9000720475','order'],
+      ['sd','microSD SanDisk Ultra 32 ГБ, без SD-адаптера',1,1920,CD+'sdsqunr-032g-gn3mn-karta-pamyati-microsdhc-32gb-sandisk-9000747456','order'],
+      ['tape','Изолента ПВХ 18 мм',1,99,'','order']
     ]},
-    {id:'net', title:'DNS и Ситилинк', sub:'точные карточки товаров', items:[
-      ['sd','DNS · microSD SanDisk Ultra 32 ГБ (SDSQUNR-032G-GN3MN)',1,600,'https://www.dns-shop.ru/product/c1f3c3c917653332/karta-pamati-sandisk-ultra-microsdhc-32-gb-sdsqunr-032g-gn3mn/','net'],
-      ['lav','DNS · петличка Maono Wave T1 mini Type-C (работает с ПК)',1,3000,'https://www.dns-shop.ru/product/1f2a0e1a0eced582/radiosistema-maono-wave-t1-mini-type-c/','net'],
-      ['cells','DNS · аккумулятор LiitoKala Lii-35S 3500 мА·ч, без «with PCB» (2 шт., есть в магазинах)',2,550,'https://www.dns-shop.ru/product/f4819cfe751c987e/akkumulator-liitokala-lii-35s-3500-mac/','net'],
-      ['ub500','Ситилинк · Bluetooth-адаптер UGREEN CM390 (BT 5.0)',1,620,'https://www.citilink.ru/product/adapter-usb-ugreen-cm390-bt5-0-edr-20m-chernyi-2046972/','net'],
-      ['otg','Ситилинк · OTG-адаптер PERO AD02, USB-C (папа) → USB-A (мама)',1,220,'https://www.citilink.ru/product/adapter-otg-pero-ad02-prad02tusr-usb-f-usb-type-c-serebristyi-blister-2057879/','net'],
-      ['ext','Кабель-удлинитель USB 2.0 AM-AF 15–30 см. Сейчас НЕ покупать, решим при сборке',1,150,'','opt'],
-      ['sim','SIM-карта, тариф «для модема», 1–3 ГБ',1,0,'','net']
+    {id:'buy', title:'Ещё купить', sub:'', items:[
+      ['asus','Ситилинк · Bluetooth-адаптер ASUS USB-BT500, самовывоз 6-я линия В.О., 43',1,1190,'https://www.citilink.ru/product/setevoi-adapter-bluetooth-asus-usb-bt500-usb-2-0-1444635/','buy'],
+      ['otgc','OTG-переходник USB-C (папа) → USB-A (мама), любой салон связи',1,300,'','buy'],
+      ['sim','SIM-карта, тариф «для модема», 1–3 ГБ, PIN-код отключить',1,0,'','buy'],
+      ['cr','Картридер microSD, только если в компьютере нет слота',1,200,'','buy'],
+      ['lav','DNS · петличка Maono Wave T1 mini Type-C, позже',1,3000,'https://www.dns-shop.ru/product/1f2a0e1a0eced582/radiosistema-maono-wave-t1-mini-type-c/','later'],
+      ['print','3D-печать корпуса и пульта, после замеров',1,1200,'','later'],
+      ['ext','USB-удлинитель 15–30 см, только если модем не встанет в хаб',1,150,'','opt']
     ]},
-    {id:'tools', title:'Инструмент для пайки', sub:'Амперкот, всё в наличии', items:[
-      ['iron','Паяльник FNIRSI HS-02 с регулировкой температуры (нужна зарядка USB-C PD от 65 Вт, как у ноутбука)',1,3425,AK+'fnirsi_hs02_portativnyiy_intellektualnyiy_payalnik_s_displeem_920v_pd_qc__blue-42057583.html','tool'],
-      ['iron2','или паяльник GOOT TQ-95 в розетку 220 В (если зарядки PD нет)',1,0,AK+'payalnik_goot_tq95_20_200w_220v_s_keramicheskim_nagrevatelem-24261665.html','tool'],
-      ['stand','Подставка для паяльника',1,340,AK+'podstavka_dlya_payalnika-24064873.html','tool'],
-      ['solder','Припой 0,6 мм, 100 г',1,580,AK+'pripoy_06mm_100_gramm-24126453.html','tool'],
-      ['flux','Флюс-паста MECHANIC MCN-UV10',1,490,AK+'bezgalogenovaya_flyus_pasta_mechanic_flux_mcnuv10_10g-39849353.html','tool'],
-      ['hs3','Термоусадка Ø3 мм, 1 м',1,69,AK+'termousadochnaya_trubka_chernaya_3mm__1_metr-23941667.html','tool'],
-      ['hs5','Термоусадка Ø5 мм, 1 м',1,58,AK+'termousadochnaya_trubka_chernaya_5mm__1_metr-23941669.html','tool'],
-      ['cut','Кусачки PS-10A',1,300,AK+'kusachki_ps10a_90_mm-41260288.html','tool'],
-      ['mm','Мультиметр DT9205A (проверка полярности и замыканий)',1,1050,AK+'tsifrovoy_multimetr_dt9205a-24346571.html','tool'],
-      ['learn','Тренировочный набор для пайки «Сердце»',1,140,AK+'diy_nabor_dlya_payki_serdtse-40164532.html','tool'],
-      ['hand','«Третья рука» с лупой (по желанию)',1,995,AK+'derzhatel_dlya_plat_tretya_ruka_mg16126a_s_uvelichitelnyim_steklom_s_funktsiey_podsvetki-23941823.html','opt']
-    ]},
-    {id:'have', title:'Уже есть', sub:'', items:[
+    {id:'have', title:'Уже было', sub:'', items:[
       ['modem','Модем Huawei/Brovi E3372',1,0,'','have'],
-      ['bt','Bluetooth-наушники',1,0,'','have']
+      ['bt','Bluetooth-наушники: проверь, что они у тебя есть',1,0,'','check']
+    ]},
+    {id:'ak', title:'Куплено в Амперкоте', sub:'14 октября', items:[
+      ['opi','Orange Pi Zero 2W, 2 ГБ',1,8650,AK+'orange_pi_zero_2w_allwinner_h618_2gb_lpddr4-40562784.html','got'],
+      ['enc','Модуль энкодера EC11 с ручкой',1,92,AK+'modul_enkodera_ec11_s_knopkoy_i_ruchkoy_360_5v_20_impulsov_za_tsikl-40125674.html','got'],
+      ['btn','Кнопка B3F 12×12 с колпачком',1,65,AK+'knopka_b3f4055_s_kolpachkom_ok_12x12_mm_bez_fiksatsii-41085396.html','got'],
+      ['pld','Гребёнка PLD-80 двухрядная',1,35,AK+'lineyka_shtyirevaya_dvuhryadnaya_2h40_pin_254mm_pld80_chernyiy-39301909.html','got'],
+      ['hub','Хаб UGREEN, 4 порта, доп. питание Type-C',1,1110,AK+'usb30_hab_ugreen__4_porta_typea_vneshnee_pitaniya_typec_02_metra_belyiy-40606942.html','got'],
+      ['lc150','Переходник LDNIO LC150 (для приёмника петлички)',1,90,AK+'perehodnik_ldnio_lc150_typec__typea-40086310.html','got'],
+      ['pwr','Модуль повербанка 5 В 2,4 А, Type-C/Type-A (один запасной)',2,100,AK+'modul_zaryadnogo_ustroystva_dlya_litievyih_akkumulyatorov_37v_5v_24a_typec_typea-41259872.html','got'],
+      ['box','Бокс для 1 аккумулятора 18650',2,35,AK+'boks_dlya_1_akkumulyatora_18650-24309218.html','got'],
+      ['ina','Датчик INA219 (заряд голосом)',1,140,AK+'datchik_silyi_toka_i_napryazheniya_ina219_i2c-39163404.html','got'],
+      ['sw','Мини-выключатель KCD1-11 3 А',2,8,AK+'mini_pereklyuchatel_kcd111_3a_250v_chernyiy-39303786.html','got'],
+      ['usbm','Штекер USB-A под пайку',1,20,AK+'usb_konnektor_pod_payku_male-24118441.html','got'],
+      ['usbc','Штекер USB-C под пайку',1,45,AK+'razem_dlya_payki_na_kabel_typec_usb_20_belyiy-39107371.html','got'],
+      ['dup','Провода Dupont мама-мама 30 см, 40 шт.',1,105,AK+'soedinitelnyie_provoda_dupont__mamamama_40sht_raznotsvetnyie_30_sm-23871299.html','got'],
+      ['patch','Патч-корд CAT6E 1 м (из него кабель пульта: 6 жил из 8)',1,110,AK+'setevoy_kabel_patchkord_cat6e_1_metr-41204158.html','got']
+    ]},
+    {id:'tools', title:'Инструмент', sub:'куплено', items:[
+      ['iron','Паяльник FNIRSI HS-02 (питание от зарядки MacBook 67 Вт)',1,3425,AK+'fnirsi_hs02_portativnyiy_intellektualnyiy_payalnik_s_displeem_920v_pd_qc__blue-42057583.html','got'],
+      ['stand','Подставка для паяльника',1,340,AK+'podstavka_dlya_payalnika-24064873.html','got'],
+      ['solder','Припой 0,6 мм, 100 г',1,580,AK+'pripoy_06mm_100_gramm-24126453.html','got'],
+      ['flux','Флюс-паста MECHANIC MCN-UV10',1,490,AK+'bezgalogenovaya_flyus_pasta_mechanic_flux_mcnuv10_10g-39849353.html','got'],
+      ['hs3','Термоусадка Ø3 мм, 1 м',1,69,AK+'termousadochnaya_trubka_chernaya_3mm__1_metr-23941667.html','got'],
+      ['hs5','Термоусадка Ø5 мм, 1 м',1,58,AK+'termousadochnaya_trubka_chernaya_5mm__1_metr-23941669.html','got'],
+      ['cut','Кусачки PS-10A',1,300,AK+'kusachki_ps10a_90_mm-41260288.html','got'],
+      ['mm','Мультиметр DT9205A',1,1050,AK+'tsifrovoy_multimetr_dt9205a-24346571.html','got'],
+      ['learn','Тренировочный набор «Сердце»',2,140,AK+'diy_nabor_dlya_payki_serdtse-40164532.html','got'],
+      ['hand','«Третья рука» с лупой',1,995,AK+'derzhatel_dlya_plat_tretya_ruka_mg16126a_s_uvelichitelnyim_steklom_s_funktsiey_podsvetki-23941823.html','got']
     ]}
   ];
-  var status = {ok:['ok','в наличии'],mid:['mid','уточнить'],net:['mid','заказать'],opt:['mid','по желанию'],have:['have','есть'],tool:['mid','для пайки']};
-  var KEY='kpa-shop-v1', done={};
+  var status = {got:['ok','куплено'],order:['have','заказано'],cancel:['no','убрать'],buy:['mid','купить'],later:['mid','позже'],opt:['mid','по месту'],have:['have','было'],check:['no','проверь']};
+  var KEY='kpa-shop-v2', done={};
   try{ done = JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ done={}; }
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(done)); }catch(e){} }
   function rub(n){ return n.toLocaleString('ru-RU')+' ₽'; }
+  function fixed(s){ return s==='got'||s==='have'; }
   var root = document.getElementById('shop');
   groups.forEach(function(g){
     var wrap=document.createElement('div');
-    var sum=0; g.items.forEach(function(it){ if(it[5]!=='opt') sum+=it[3]*Number(it[2]); });
+    var sum=0; g.items.forEach(function(it){ if(it[5]!=='opt'&&it[5]!=='cancel') sum+=it[3]*Number(it[2]); });
     var h=document.createElement('h3'); h.innerHTML = g.title + (g.sub?' <small>'+g.sub+'</small>':'') + (sum?' <small>≈ '+rub(sum)+'</small>':'');
     wrap.appendChild(h);
     var tw=document.createElement('div'); tw.className='tbl';
@@ -655,35 +693,34 @@ footer{padding-block:28px 0;font-size:13px;color:var(--muted);display:grid;gap:6
     t.innerHTML='<thead><tr><th></th><th>Что</th><th class="num">Шт.</th><th class="num">Цена</th><th>Статус</th></tr></thead>';
     var tb=document.createElement('tbody');
     g.items.forEach(function(it){
-      var tr=document.createElement('tr'); var id='buy-'+it[0];
-      if(done[it[0]] || it[5]==='have') tr.className='done';
+      var tr=document.createElement('tr'); var id='buy-'+it[0]; var on=done[it[0]]||fixed(it[5]);
+      if(on) tr.className='done';
       var name = it[4] ? '<a href="'+it[4]+'" target="_blank" rel="noopener">'+it[1]+'</a>' : it[1];
       var st = status[it[5]];
-      tr.innerHTML='<td><input type="checkbox" id="'+id+'" aria-label="Куплено: '+it[1].replace(/"/g,'')+'"'+((done[it[0]]||it[5]==='have')?' checked':'')+(it[5]==='have'?' disabled':'')+'></td>'+
+      tr.innerHTML='<td><input type="checkbox" id="'+id+'" aria-label="Отметить: '+it[1].replace(/"/g,'')+'"'+(on?' checked':'')+(fixed(it[5])?' disabled':'')+'></td>'+
         '<td>'+name+'</td><td class="num">'+it[2]+'</td><td class="num">'+(it[3]?rub(it[3]*Number(it[2])):'—')+'</td>'+
         '<td><span class="pill '+st[0]+'">'+st[1]+'</span></td>';
       tb.appendChild(tr);
       tr.querySelector('input').addEventListener('change',function(e){
         if(e.target.checked) done[it[0]]=1; else delete done[it[0]];
-        tr.className = e.target.checked ? 'done' : ''; save(); totals();
+        tr.className = e.target.checked ? 'done' : ''; save();
       });
     });
     t.appendChild(tb); tw.appendChild(t); wrap.appendChild(tw); root.appendChild(wrap);
   });
-  function totals(){
-    var all=0, bought=0, tools=0;
-    groups.forEach(function(g){ g.items.forEach(function(it){
-      if(it[5]==='opt'||it[5]==='have') return;
+  (function totals(){
+    var s={}, later=0;
+    groups.forEach(function(g){ s[g.id]=0; g.items.forEach(function(it){
       var v=it[3]*Number(it[2]);
-      if(it[5]==='tool'){ tools+=v; }else{ all+=v; }
-      if(done[it[0]]) bought+=v;
+      if(it[5]==='later'){ later+=v; return; }
+      if(it[5]==='opt'||it[5]==='cancel') return;
+      s[g.id]+=v;
     });});
-    var shop=800, print=1200;
+    var master=800, device=s.ak+s.cd+s.buy+later+master;
     document.getElementById('totals').innerHTML =
-      '<span>Детали <b>'+rub(all)+'</b></span><span>Инструмент <b>'+rub(tools)+'</b></span><span>Мастерская (гребёнка) ≈ <b>'+rub(shop)+'</b></span><span>3D-печать ≈ <b>'+rub(print)+'</b></span><span>Всего ≈ <b>'+rub(all+tools+shop+print)+'</b></span><span class="muted">Куплено на '+rub(bought)+'</span>';
-    var sb=document.getElementById('specBudget'); if(sb) sb.textContent='≈ '+Math.round((all)/1000)+' тыс. ₽';
-  }
-  totals();
+      '<span>Амперкот <b>'+rub(s.ak+s.tools)+'</b></span><span>«Чип и Дип» <b>'+rub(s.cd)+'</b></span><span>Ещё купить ≈ <b>'+rub(s.buy)+'</b> + SIM</span><span>Позже ≈ <b>'+rub(later+master)+'</b> (петличка, мастер, корпус)</span><span class="muted">Устройство целиком ≈ '+rub(device)+', инструмент '+rub(s.tools)+'</span>';
+    var sb=document.getElementById('specBudget'); if(sb) sb.textContent='≈ '+Math.round(device/1000)+' тыс. ₽';
+  })();
 
   // ---- copy ----
   var btn=document.getElementById('copyJob');
